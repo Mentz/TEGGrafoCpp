@@ -1,0 +1,6 @@
+4 4 0
+N1 N2 N3 NohMaluco4
+N1 N2
+N1 N3
+N2 N3
+N3 NohMaluco4
