@@ -23,14 +23,16 @@ using namespace std;
 int menu(Grafo *g)
 {
 	int operacao = -1;
+	int grupos = 0;
 	puts("Bem vindo ao utilitário de grafos de Leo e Lucas!");
 	puts("Escolha a opção desejada:\n");
 	puts("1 - Carregar grafo (arquivo .txt)");
 	puts("2 - Apresenta matriz de adjacência");
 	puts("3 - Apresenta matriz de incidência");
-	puts("4 - Apresentar grau do nó");
-	puts("5 - Apresentar grau do grafo");
-	puts("6 - Verificar se grafo é conexo");
+	puts("4 - Apresenta lista de adjacência");
+	puts("5 - Apresentar grau do nó");
+	puts("6 - Apresentar grau do grafo");
+	puts("7 - Verificar se grafo é conexo");
 
 	scanf("%d", &operacao);
 	system("clear");
@@ -46,13 +48,23 @@ int menu(Grafo *g)
 			g->mostraMatAdj();
 			break;
 		case 3:
-			//g->mostraMatInc();
+			g->mostraMatInc();
 			break;
 		case 4:
-			//g->mostraGrauNo();
+			g->mostraListaAdj();
 			break;
 		case 5:
+			g->mostraGrau();
+			break;
+		case 6:
 			//g->mostraGrauGrafo();
+			break;
+		case 7:
+			grupos = g->verificaConexo();
+			if(grupos == 0)
+				cout << "O grafo é conexo" << endl;
+			else
+				cout << "O grafo é desconexo e possui " << grupos+1 << " subgrafos" << endl; 
 			break;
 		default:
 			operacao = -1;
@@ -75,6 +87,8 @@ void Grafo::leGrafo ()
 	
 	file >> nn >> na >> tipo;
 	GVertice vAux1, vAux2;
+	this -> nArestas  = na;
+	this -> nVertices = nn;
 
 	for (int i = 0; i < nn; i++)
 	{
@@ -96,31 +110,39 @@ void Grafo::mostraMatAdj()
 	//int maxLen = 0;
 	for (int i = 0; i < (int) vertices.size(); i++)
 	{
-		/*
-		if (i == 0)
-		{
-			for (int k = 0; k < (int) vertices.size(); k++)
-			{
-				printf("%*s%s", (int) vertices[k].nome.size(), vertices[k].nome.c_str(),
-						  		(k < (int) vertices.size()) ? " | " : "");
-				maxLen = MAX(maxLen, (int) vertices[k].nome.size());
-			}
-			printf("\n");
-		}
-		*/
-			
-
 		for (int j = 0; j < (int) vertices.size(); j++)
 		{
-			/*
-			printf("%*s%*d%s", maxLen, vertices[i].nome.c_str(),
-				(int) vertices[j].nome.size(), matrizAdj[i][j],
-				(j < (int) vertices.size() - 1) ? " | ":"");
-			*/
 			printf("%4d", matrizAdj[i][j]);
 		}
 		printf("\n");
 	}
+}
+
+void Grafo::mostraMatInc() {
+	for (int i = 0; i < (int) matrizInc.size(); i++) {
+		for (int j = 0; j < (int) matrizInc.size(); j++)
+			printf("%4d", matrizInc[i][j]);
+		
+		printf("\n");
+	} 
+}
+
+void Grafo::mostraListaAdj() {
+	for (int i = 0; i < (int) listaAdj.size(); i++){
+		cout << " N" << i + 1 << ":";
+		for (int j = 0; j < (int) listaAdj[i].size(); j++) {
+			cout << " N" << listaAdj[i][j] + 1;
+		}
+		cout << endl;
+	}
+}
+
+void Grafo::mostraGrau() {
+	this -> calculaGrau();
+
+	cout << "Grau dos nós: " << endl;
+	for(int i = 0; i < (int) grauVertice.size(); i++)
+		cout << "N" << i+1 << ": " << grauVertice[i] << endl;
 }
 
 void Grafo::addVertice(GVertice v)
@@ -140,8 +162,20 @@ void Grafo::addVertice(GVertice v)
 		matrizAdj[i].push_back(0);
 	// fim
 
-	// Atualizar matriz de incidência
+	// Atualiza lista de adjacência
+	this -> listaAdj.push_back(vector<int>());
+}
 
+void Grafo::calculaGrau() {
+	grauVertice = vector<int>((int) nVertices, 0);
+	// Calcula o grau de cada vértice a partir das colunas da matriz de Incindência
+	for(int j = 0; j < this->nVertices; j++){
+		for(int i = 0; i < this->nArestas; i++){
+			if(matrizInc[i][j] > 0)
+				grauVertice[j] += matrizInc[i][j];
+		}
+	}
+	// fim
 }
 
 void Grafo::addAresta(GVertice v1, GVertice v2)
@@ -168,5 +202,42 @@ void Grafo::addAresta(GVertice v1, GVertice v2)
 		matrizAdj[p2][p1]++;
 	// fim
 
+	// Atualizar matriz de incidência
+	matrizInc.push_back(vector<int> (nVertices, 0));
+	matrizInc[matrizInc.size() - 1][p1] = -1;
+	matrizInc[matrizInc.size() - 1][p2] =  1;
 
+	if (tipo == NAODIRECIONADO)
+		matrizInc[matrizInc.size() - 1][p1] = 1;
+	//fim
+
+	// Atualizar lista de adjacência
+	listaAdj[p1].push_back(p2);
+	if (tipo == NAODIRECIONADO)
+		listaAdj[p2].push_back(p1);
+	// fim
+}
+
+void Grafo::DFS(int u, int grupo, vector<int> &grupoVertices) {
+	grupoVertices[u] = grupo;
+	for(int i = 0; i < (int) listaAdj[u].size(); i++){
+		int atual = listaAdj[u][i];
+		if(grupoVertices[atual] == -1)
+			DFS(atual, grupo, grupoVertices);
+	}
+}   
+
+int Grafo::verificaConexo() {
+	vector<int> grupoVertices (this->nVertices, -1);
+	
+	int grupo = 0;
+	for(int i = 0; i < nVertices; i++){
+		if(grupoVertices[i] == -1) {
+			if(i != 0)
+				grupo++;
+			DFS(i, grupo, grupoVertices);
+		}
+	}
+
+	return grupo;
 }

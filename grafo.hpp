@@ -25,17 +25,23 @@ public:
 
 class Grafo {
 private:
+	vector<GAresta> arestas;
 	vector<GVertice> vertices;
 	vector<vector<int> > matrizAdj;
 	vector<vector<int> > matrizInc;
-	
+	vector<vector<int> > listaAdj;
+	vector<int> grauVertice;
+	int nArestas;
+	int nVertices;
+
 	int tipo; // 0 para não-direcionado, 1 para direcionado.
 
 public:
 	void leGrafo();
 	void mostraMatAdj();
 	void mostraMatInc();
-	void mostraGrauNo();
+	void mostraListaAdj();
+	void mostraGrau();
 	void mostraGrauGrafo();
 
 	// Aceita um GVertice como argumento, retorna sucesso (0) ou fracasso (1).
@@ -51,10 +57,14 @@ public:
 	// Lista as arestas e usuário escolhe qual remover.
 	void remAresta();
 
+	// Calcula grau de cada vértice
+	void calculaGrau();
+
 	// Lista os vértices e usuário escolhe um para ver o grau.
 	int getGrauVertice();
 	int getGrauGrafo();
-	int verifConexo();
+	int verificaConexo();
+	void DFS(int u, int grupo, vector<int> &grupoVertices);
 };
 
 int menu(Grafo* g);
