@@ -27,17 +27,19 @@ int menu(Grafo *g)
 	int grupos = 0;
 	cout << endl;
 	puts("Menu:");
+	puts("  0. Sair");
 	puts("  1. Carregar grafo (arquivo .txt)");
 	puts("  2. Apresenta matriz de adjacência");
 	puts("  3. Apresenta matriz de incidência");
-	puts("  4. Apresenta lista de adjacência (*)");
+	puts("  4. Apresenta lista de adjacência");
 	puts("  5. Apresentar grau do nó");
 	puts("  6. Apresentar grau do grafo (*)");
 	puts("  7. Complemento matriz de adjacência");
 	puts("  8. Remover vértices");
-	puts("  9. Adicionar vértie");
+	puts("  9. Adicionar vértice");
 	puts(" 10. Adicionar aresta");
 	puts(" 11. Verificar se grafo é conexo (*)");
+	puts("\t(*): Não implementado");
 	cout << "Escolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -165,17 +167,19 @@ void Grafo::mostraComplMatAdj() {
 }
 
 void Grafo::mostraMatAdj()
-{	
-	cout << "  ";
+{
+	int maxLen = 0;
+	for (int i = 0; i < nVertices; i++)
+		maxLen = MAX(maxLen, (int) getVerticeIndex(i).size());
+	cout << setw(maxLen) << "";
 	for(int i = 0; i < nVertices; i++)
-		cout << setw(4) << getVerticeIndex(i);
+		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
 	cout << endl;
-	//int maxLen = 0;
 	for (int i = 0; i < nVertices; i++){
 		for (int j = 0; j < nVertices; j++){	
 			if(j == 0)
-				cout << getVerticeIndex(i);
-			cout << setw(4) << matrizAdj[i][j];
+				cout << setw(maxLen) << getVerticeIndex(i);
+			cout << setw((int) getVerticeIndex(j).size() + 2) << matrizAdj[i][j];
 		}
 		cout << endl;
 	}
