@@ -186,13 +186,18 @@ void Grafo::mostraMatAdj()
 }
 
 void Grafo::mostraMatInc() {
-	for(int i = 0; i < (int) this -> vertices.size(); i++)
-		(i == 0) ? cout << getVerticeIndex(i) : cout << "  " << getVerticeIndex(i);
+	int maxLen = 0;
+	for (int i = 0; i < nArestas; i++)
+		maxLen = MAX(maxLen, (int) getArestaIndex(i).size());
+	cout << setw(maxLen) << "";
+	for (int i = 0; i < (int) this -> vertices.size(); i++)
+		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
 	cout << endl;
 
-	for (int i = 0; i < (int) matrizInc.size(); i++) {
-		for (int j = 0; j < (int) matrizInc[i].size(); j++)
-			(j == 0) ? printf(" %d", matrizInc[i][j]) : printf("%4d", matrizInc[i][j]);
+	for (int i = 0; i < (int) nArestas; i++) {
+		cout << setw(maxLen) << getArestaIndex(i);
+		for (int j = 0; j < nVertices; j++)
+			cout << setw((int) getVerticeIndex(j).size() + 2) << matrizInc[i][j];
 		
 		printf("\n");
 	} 
