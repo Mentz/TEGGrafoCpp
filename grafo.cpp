@@ -25,7 +25,7 @@ int menu(Grafo *g)
 {
 	int operacao = -1;
 	int grupos = 0;
-	cout << endl;
+	puts("\n\n####################################################\n\n");
 	puts("Menu:");
 	puts("  0. Sair");
 	puts("  1. Carregar grafo (arquivo .txt)");
@@ -35,18 +35,16 @@ int menu(Grafo *g)
 	puts("  5. Apresentar grau do nó");
 	puts("  6. Apresentar grau do grafo (*)");
 	puts("  7. Complemento matriz de adjacência");
-	puts("  8. Remover vértices");
-	puts("  9. Adicionar vértice");
+	puts("  8. Adicionar vértice");
+	puts("  9. Remover vértices");
 	puts(" 10. Adicionar aresta");
 	puts(" 11. Verificar se grafo é conexo (*)");
 	puts("\t(*): Não implementado");
 	cout << "Escolha a operação: ";
 
 	scanf("%d", &operacao);
-	system("clear");
+	//system("clear");
 
-	
-	int nvRemocao, qvAdicao, i;
 	GVertice u, u1;
 	string uaux;
 
@@ -76,30 +74,23 @@ int menu(Grafo *g)
 			g->mostraComplMatAdj();
 			break;
 		case 8:
-			cout << "Quantidade de vértices para remoção" << endl;
-			cin >> nvRemocao;
-			cout << "Digite lista de vértices para remoção" << endl;
-			for(i = 0; i < nvRemocao; i++){
-				cin >> u.nome;
-				g->RemoveVertice(u);
-			}
-			break;
+			if (g->getTipo() == -1)
+				g->setTipo();
 
-		case 9:
-			cout << "Quantidade de vértices para adicão" << endl;
-			cin >> qvAdicao;
-			cout << "Digite lista de vértices para adição" << endl;
-			for(i = 0; i < qvAdicao; i++){
-				cin >> u.nome;
-				g->addVertice(u);
-			}
-			break;
-		
-		case 10:
-			cout << "Adição de arestas" << endl;
-			cout << "Vértice 1: ";
 			cin >> u.nome;
-			cout << "Vértice 2: ";
+			g->addVertice(u);
+			break;
+		case 9:
+			cin >> u.nome;
+			g->RemoveVertice(u);
+			break;
+		case 10:
+			if (g->getTipo() == -1)
+				g->setTipo();
+			cout << "Adição de arestas" << endl;
+			cout << "Vértice de partida: ";
+			cin >> u.nome;
+			cout << "Vértice de destino: ";
 			cin >> u1.nome;
 			g->addAresta(u, u1);
 			break;
@@ -116,9 +107,31 @@ int menu(Grafo *g)
 			break;
 	}
 
+	puts("\n\n");
+
 	return operacao;
 }
 
+Grafo::Grafo()
+{
+	this->tipo = -1;
+	this->nArestas = 0;
+	this->nVertices = 0;
+}
+
+int Grafo::getTipo()
+{
+	return this->tipo;
+}
+
+void Grafo::setTipo()
+{
+	puts("Informe o tipo do grafo:");
+	puts(" 0 - não-direcionado");
+	puts(" 1 - direcionado");
+	puts("\nDigite \'0\' ou \'1\'.");
+	cin >> this->tipo;
+}
 
 void Grafo::leGrafo ()
 {

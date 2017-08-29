@@ -34,9 +34,13 @@ private:
 	int nArestas;
 	int nVertices;
 
-	int tipo; // 0 para não-direcionado, 1 para direcionado.
+	int tipo; // 0 para não-direcionado, 1 para direcionado, -1 para indefinido.
 
 public:
+	Grafo(); // Construtor para inicializar valores.
+
+	int getTipo();
+	void setTipo();
 	void leGrafo();
 	void mostraMatAdj();
 	void mostraMatInc();
