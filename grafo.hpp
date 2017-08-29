@@ -65,6 +65,11 @@ public:
 	int getGrauGrafo();
 	int verificaConexo();
 	void DFS(int u, int grupo, vector<int> &grupoVertices);
+
+	string getVerticeIndex(int i);
+	string getArestaIndex(int i);
+	void RemoveVertice(GVertice v1);
+	void mostraComplMatAdj();
 };
 
 int menu(Grafo* g);
