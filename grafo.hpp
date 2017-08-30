@@ -54,8 +54,6 @@ public:
 	// Não tem argumentos, pede o nome do vértice a ser incluso.
 	void addVertice();
 
-	// Não tem argumentos, pede o nome do vértice a ser removido.
-	void remVertice();
 	void addAresta(GVertice v1, GVertice v2);
 
 	// Lista as arestas e usuário escolhe qual remover.
@@ -72,7 +70,7 @@ public:
 
 	string getVerticeIndex(int i);
 	string getArestaIndex(int i);
-	void RemoveVertice(GVertice v1);
+	void removeVertice(GVertice v1);
 	void mostraComplMatAdj();
 };
 

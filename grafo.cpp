@@ -25,7 +25,7 @@ int menu(Grafo *g)
 {
 	int operacao = -1;
 	int grupos = 0;
-	puts("\n\n####################################################\n\n");
+	puts("\n####################################################\n");
 	puts("Menu:");
 	puts("  0. Sair");
 	puts("  1. Carregar grafo (arquivo .txt)");
@@ -44,6 +44,8 @@ int menu(Grafo *g)
 
 	scanf("%d", &operacao);
 	//system("clear");
+
+	puts("----------\n");
 
 	GVertice u, u1;
 	string uaux;
@@ -82,7 +84,7 @@ int menu(Grafo *g)
 			break;
 		case 9:
 			cin >> u.nome;
-			g->RemoveVertice(u);
+			g->removeVertice(u);
 			break;
 		case 10:
 			if (g->getTipo() == -1)
@@ -107,7 +109,6 @@ int menu(Grafo *g)
 			break;
 	}
 
-	puts("\n\n");
 
 	return operacao;
 }
@@ -141,9 +142,10 @@ void Grafo::leGrafo ()
 	ifstream file;
 	file.open(caminho);
 
-	int nn, na, tipo;
+	int nn, na;
 	
-	file >> nn >> na >> tipo;
+	file >> nn >> na >> this -> tipo;
+
 	GVertice vAux1, vAux2;
 	this -> nArestas  = na;
 	this -> nVertices = nn;
@@ -161,19 +163,23 @@ void Grafo::leGrafo ()
 	}
 	
 	file.close();
+
+	puts("\nArquivo lido com sucesso!");
 }
 
 void Grafo::mostraComplMatAdj() {
-	cout << "  ";
+	int maxLen = 0;
+	for (int i = 0; i < nVertices; i++)
+		maxLen = MAX(maxLen, (int) getVerticeIndex(i).size());
+	cout << setw(maxLen) << "";
 	for(int i = 0; i < nVertices; i++)
-		cout << setw(4) << getVerticeIndex(i);
+		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
 	cout << endl;
-	//int maxLen = 0;
 	for (int i = 0; i < nVertices; i++){
 		for (int j = 0; j < nVertices; j++){	
 			if(j == 0)
-				cout << getVerticeIndex(i);
-			cout << setw(4) << !matrizAdj[i][j];
+				cout << setw(maxLen) << getVerticeIndex(i);
+			cout << setw((int) getVerticeIndex(j).size() + 2) << !matrizAdj[i][j];
 		}
 		cout << endl;
 	}
@@ -199,20 +205,20 @@ void Grafo::mostraMatAdj()
 }
 
 void Grafo::mostraMatInc() {
-	int maxLen = 0;
-	for (int i = 0; i < nArestas; i++)
-		maxLen = MAX(maxLen, (int) getArestaIndex(i).size());
+	int maxLen = 2;
+	//for (int i = 0; i < nArestas; i++)
+	//	maxLen = MAX(maxLen, (int) getArestaIndex(i).size());
 	cout << setw(maxLen) << "";
 	for (int i = 0; i < (int) this -> vertices.size(); i++)
 		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
 	cout << endl;
 
-	for (int i = 0; i < (int) nArestas; i++) {
-		cout << setw(maxLen) << getArestaIndex(i);
+	for (int i = 0; i < (int) this->matrizInc.size(); i++) {
+		cout << "u" << i;
 		for (int j = 0; j < nVertices; j++)
 			cout << setw((int) getVerticeIndex(j).size() + 2) << matrizInc[i][j];
 		
-		printf("\n");
+		puts("");
 	} 
 }
 
@@ -244,7 +250,6 @@ void Grafo::addVertice(GVertice v)
 		}
 	
 	vertices.push_back(v);
-	nVertices = this -> vertices.size();
 
 	// Atualizar matriz de adjacência
 	matrizAdj.push_back(vector<int>((int) vertices.size(), 0));
@@ -262,6 +267,8 @@ void Grafo::addVertice(GVertice v)
 	// Atualiza lista de adjacência
 	this -> listaAdj.push_back(vector<int>());
 	// fim
+	
+	nVertices = this -> vertices.size();
 }
 
 void Grafo::calculaGrau() {
@@ -314,9 +321,11 @@ void Grafo::addAresta(GVertice v1, GVertice v2)
 	if (tipo == NAODIRECIONADO)
 		listaAdj[p2].push_back(p1);
 	// fim
+
+	this->nArestas = this->arestas.size();
 }
 
-void Grafo::RemoveVertice(GVertice v1) {
+void Grafo::removeVertice(GVertice v1) {
 	int index = -1;
 	for(int i = 0; i < (int) this -> vertices.size(); i++)
 		if(this -> vertices[i].nome == v1.nome)
@@ -353,6 +362,8 @@ void Grafo::RemoveVertice(GVertice v1) {
 	// Removendo vertice da lista de adjacência
 	//this->listaAdj.erase(this->listaAdj.begin() + index);
 	// fim
+
+	this->nVertices = this->vertices.size();
 	
 }
 
