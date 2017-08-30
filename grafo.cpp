@@ -277,7 +277,7 @@ void Grafo::calculaGrau() {
 	for(int j = 0; j < (int) this -> matrizInc[0].size(); j++){
 		for(int i = 0; i < (int) this -> matrizInc.size(); i++){
 			if(matrizInc[i][j] > 0)
-				grauVertice[j] += matrizInc[i][j];
+				grauVertice[j] += ABS(matrizInc[i][j]);
 		}
 	}
 	// fim
