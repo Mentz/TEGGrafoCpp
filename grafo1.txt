@@ -1,4 +1,4 @@
-4 4 1
+4 4 0
 N1 N2 N3 NohTopera4
 N1 N2
 N2 N3
