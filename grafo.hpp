@@ -5,43 +5,29 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <bits/stdc++.h>
 
 #define MAX(a,b) ((a<b)?b:a)
-#define ABS(a) ((a<0)?-a:a)
 #define NAODIRECIONADO 0
 #define DIRECIONADO 1
 
 using namespace std;
 
-class GVertice {
-public:
-	string nome;
-};
-
-class GAresta {
-public:
-	int peso;
-	string nome;
-};
-
 class Grafo {
 private:
-	vector<GAresta> arestas;
-	vector<GVertice> vertices;
-	vector<vector<int> > matrizAdj;
-	vector<vector<int> > matrizInc;
-	vector<vector<int> > listaAdj;
-	vector<int> grauVertice;
 	int nArestas;
 	int nVertices;
+	vector<string> vertices;
 
-	int tipo; // 0 para não-direcionado, 1 para direcionado, -1 para indefinido.
+	map<string, map<string, int > > matrizAdj;
+	map<string, vector<int> > listaAdj;
+	map<string, vector<int> > matrizInc;
+
+	vector<int> grauVertice;
+
+	int tipo; // 0 para não-direcionado, 1 para direcionado.
 
 public:
-	Grafo(); // Construtor para inicializar valores.
-
-	int getTipo();
-	void setTipo();
 	void leGrafo();
 	void mostraMatAdj();
 	void mostraMatInc();
@@ -49,13 +35,18 @@ public:
 	void mostraGrau();
 	void mostraGrauGrafo();
 
+
+	void construirMatAdj();
+
 	// Aceita um GVertice como argumento, retorna sucesso (0) ou fracasso (1).
-	void addVertice(GVertice v);
+	void addVertice(string v);
 
 	// Não tem argumentos, pede o nome do vértice a ser incluso.
 	void addVertice();
 
-	void addAresta(GVertice v1, GVertice v2);
+	// Não tem argumentos, pede o nome do vértice a ser removido.
+	void remVertice();
+	void addAresta(string v1, string v2);
 
 	// Lista as arestas e usuário escolhe qual remover.
 	void remAresta();
@@ -69,9 +60,7 @@ public:
 	int verificaConexo();
 	void DFS(int u, int grupo, vector<int> &grupoVertices);
 
-	string getVerticeIndex(int i);
-	string getArestaIndex(int i);
-	void removeVertice(GVertice v1);
+	void RemoveVertice(string v1);
 	void mostraComplMatAdj();
 };
 
