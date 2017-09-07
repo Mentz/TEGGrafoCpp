@@ -15,7 +15,6 @@ using namespace std;
 
 
 /**	A implementar:
- *	Matriz de incidência
  *	Listas de adjacência
  *	Vetores de adjacência
  *	Os métodos da classe 'Grafo'
@@ -156,7 +155,7 @@ void Grafo::leGrafo ()
 		this->addVertice(vAux1);
 	}
 
-	for (int i = 0; i < nn; i++)
+	for (int i = 0; i < na; i++)
 	{
 		file >> vAux1.nome >> vAux2.nome;
 		this->addAresta(vAux1, vAux2);
@@ -195,7 +194,7 @@ void Grafo::mostraMatAdj()
 		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
 	cout << endl;
 	for (int i = 0; i < nVertices; i++){
-		for (int j = 0; j < nVertices; j++){	
+		for (int j = 0; j < nVertices; j++){
 			if(j == 0)
 				cout << setw(maxLen) << getVerticeIndex(i);
 			cout << setw((int) getVerticeIndex(j).size() + 2) << matrizAdj[i][j];
@@ -298,27 +297,27 @@ void Grafo::addAresta(GVertice v1, GVertice v2)
 	if (p1 == -1 || p2 == -1)
 	{
 		puts("Não há um vértice com o nome informado");
-		exit(EXIT_FAILURE);
+		return;
 	}
 
 	// Atualizar matriz de adjacência
 	matrizAdj[p1][p2]++;
-	if (tipo == NAODIRECIONADO)
+	if (tipo == NAODIRECIONADO && p1 != p2)
 		matrizAdj[p2][p1]++;
 	// fim
 
 	// Atualizar matriz de incidência
 	matrizInc.push_back(vector<int> (nVertices, 0));
-	matrizInc[matrizInc.size() - 1][p1] = -1;
-	matrizInc[matrizInc.size() - 1][p2] =  1;
-
-	if (tipo == NAODIRECIONADO)
-		matrizInc[matrizInc.size() - 1][p1] = 1;
+	if (tipo == DIRECIONADO)
+		matrizInc[matrizInc.size() - 1][p1]--;
+	else
+		matrizInc[matrizInc.size() - 1][p1]++;
+	matrizInc[matrizInc.size() - 1][p2]++;
 	// fim
 
 	// Atualizar lista de adjacência
 	listaAdj[p1].push_back(p2);
-	if (tipo == NAODIRECIONADO)
+	if (tipo == NAODIRECIONADO && p1 != p2)
 		listaAdj[p2].push_back(p1);
 	// fim
 
@@ -333,7 +332,7 @@ void Grafo::removeVertice(GVertice v1) {
 
 	if(index == -1){
 		puts("Não há um vertice com o nome informado");
-		exit(EXIT_FAILURE);
+		return;
 	}
 
 	this -> vertices.erase(this->vertices.begin() + index);
@@ -397,4 +396,11 @@ string Grafo::getVerticeIndex(int i) {
 
 string Grafo::getArestaIndex(int i) {
 	return this -> arestas[i].nome;
+}
+
+int Grafo::verificaIsomorfismo(Grafo* g2)
+{
+	// Calcula um hash para cada vértice.
+	// Usa o grau de entrada, grau de saída, hash 
+	return 1;
 }

@@ -73,6 +73,8 @@ public:
 	string getArestaIndex(int i);
 	void removeVertice(GVertice v1);
 	void mostraComplMatAdj();
+
+	int verificaIsomorfismo(Grafo* g2);
 };
 
 int menu(Grafo* g);
