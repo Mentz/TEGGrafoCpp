@@ -30,7 +30,7 @@ private:
 
 public:
 	void leGrafo();
-	void mostraMatAdj();
+	void mostraMatAdj(bool complemento);
 	void mostraMatInc();
 	void mostraListaAdj();
 	void mostraGrau();
