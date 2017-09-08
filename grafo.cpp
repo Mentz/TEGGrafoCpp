@@ -130,7 +130,7 @@ void Grafo::leGrafo ()
 	file >> nn >> na >> tipo;
 	this -> nArestas  = 0;
 	this -> nVertices = 0;
-
+	this -> tipo = tipo;
 
 	for (int i = 0; i < nn; i++)
 	{
@@ -147,10 +147,6 @@ void Grafo::leGrafo ()
 	}
 	
 	file.close();
-}
-
-void construirMatAdj(){
-
 }
 
 void Grafo::mostraComplMatAdj() {
@@ -193,11 +189,22 @@ void Grafo::mostraMatInc() {
 }
 
 void Grafo::mostraListaAdj() {
+	map<string, vector<string> > :: iterator it = this->listaAdj.begin();
 
+	for(; it != this -> listaAdj.end(); it++){
+		cout << it->first << ":";
+		for(int i = 0; i < (it->second).size(); i++){
+			cout << " " << (it->second)[i];
+		}
+		cout << endl;
+	}
 }
 
 void Grafo::mostraGrau() {
-
+	cout << grauVertice.size() << endl;
+	map<string, int> :: iterator it = grauVertice.begin();
+	for(; it != grauVertice.end(); it++) 
+		cout << it -> first << ": " << it->second << endl; 
 }
 
 void Grafo::addVertice(string v)
@@ -211,7 +218,7 @@ void Grafo::addVertice(string v)
     }
 	
 	vertices.push_back(v);
-	nVertices++;
+	nVertices = vertices.size();
 	
 	// Atualizar matriz de adjacência
 	for(int i = 0; i < nVertices; i++){
@@ -229,13 +236,22 @@ void Grafo::addVertice(string v)
 	// Fim
 
 	// Atualiza lista de adjacência
-
+	this->listaAdj[v] = vector<string> (0);
 	// fim
 }
 
 void Grafo::calculaGrau() {
-	// Calcula o grau de cada vértice a partir das colunas da matriz de Incindência
-
+	// Calcula o grau de cada vértice a partir das linhas das matriz de incidencia
+	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
+	
+	for(; it != this->matrizInc.end(); it++) {
+		int cont = 0;
+		for(int i = 0; i < it->second.size(); i++) {
+			if(it->second[i] >= 1)
+				cont += it->second[i];
+		}
+		this->grauVertice[it->first] = cont;
+	}
 	// fim
 }
 
@@ -245,7 +261,7 @@ void Grafo::addAresta(string v1, string v2)
 	string n1 = v1;
 	string n2 = v2;
 
-	// Atualizar matriz de adjacência
+	// Atualiza matriz de adjacência
 	if(this->tipo == 0) {
 		if(this->matrizAdj[n1].count(n2) != 0){
 			this->matrizAdj[n1][n2]++;
@@ -258,7 +274,7 @@ void Grafo::addAresta(string v1, string v2)
 	// Atualizar matriz de incidência
 	map<string, vector<int> > :: iterator it;
 	for(it = this->matrizInc.begin(); it != this->matrizInc.end(); it++) {
-		while((it->second).size() != nArestas){
+		while((it->second).size() != nArestas) {
 			it->second.push_back(0);
 		}
 	}
@@ -272,31 +288,92 @@ void Grafo::addAresta(string v1, string v2)
 	// fim
 
 	// Atualizar lista de adjacência
-
+	if(this -> tipo == 0) { 
+		this->listaAdj[v1].push_back(v2);
+		this->listaAdj[v2].push_back(v1);
+	} else {
+		this->listaAdj[v1].push_back(v2);
+		getchar();
+	}
 	// fim
 }
 
 void Grafo::RemoveVertice(string v1) {
+	// Atualizando lista de vértices
+	for(int i = 0; i < this->vertices.size(); i++) {
+		if(this->vertices[i] == v1) {
+			this->vertices.erase(this->vertices.begin() + i);
+			break;
+		}
+	}
+	this->nVertices = vertices.size();
+	// fim
 
 	// Removendo vertice da matriz adjacencia
+	this->matrizAdj.erase(v1);
+	map<string, map<string, int> > :: iterator itAdj = this->matrizAdj.begin();
 
+	for(; itAdj != this->matrizAdj.end(); itAdj++) {
+		itAdj->second.erase(v1);
+	}
 	// fim
 
 	
 	// Removendo vertice da matriz de incidencia
+	map<string, vector<int> > :: iterator itInc;
+	for(int i = 0; i < this->matrizInc[v1].size(); i++) {
+		if(this->matrizInc[v1][i] != 0) {
+			cout << i << endl;
+			for (itInc = this -> matrizInc.begin(); itInc != this->matrizInc.end(); itInc++) { 
+				(itInc->second).erase((itInc->second).begin() + i);
+			}
+			getchar();
+			i--;
+		}
+	}
 
+	this -> matrizInc.erase(v1);
 	// fim
 	
 	// Removendo vertice da lista de adjacência
-
+	this->listaAdj.erase(v1);
+	map<string, vector<string> > :: iterator itLista;
+	for(itLista = this->listaAdj.begin(); itLista != this->listaAdj.end(); itLista++) {
+		for(int i = 0; i < itLista->second.size(); i++) { 
+			if(itLista->second[i] == v1) 
+				itLista->second.erase(itLista->second.begin() + i);
+		}
+	}
 	// fim
 	
 }
 
-void Grafo::DFS(int u, int grupo, vector<int> &grupoVertices) {
+void Grafo::DFS(string u, int grupo, vector<int> &grupoVertices) {
 
 }   
 
 int Grafo::verificaConexo() {
+	map<string, int> grupoVertices;
+	for(int i = 0; i < vertices.size(); i++) { 
+		grupoVertices[vertices[i]] = -1;
+	}
 
+	map<string, int> :: iterator it = grupoVertices.begin();
+	for(; it != grupoVertices.end(); it++) {
+		cout << it->first << " " << it->second << endl;
+	}
+
+	cout << grupoVertices.size() << endl;
+
+	/*
+	int grupo = 0;
+	for(int i = 0; i < grupoVertices.size(); i++) { 
+		if(grupoVertices[i] == -1) {
+			DFS(grupoVertices[i], grupo, grupoVertices);
+		}
+
+		grupo++;
+	}
+	*/
+	return 0;
 }

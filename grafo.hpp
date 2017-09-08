@@ -20,10 +20,10 @@ private:
 	vector<string> vertices;
 
 	map<string, map<string, int > > matrizAdj;
-	map<string, vector<int> > listaAdj;
+	map<string, vector<string> > listaAdj;
 	map<string, vector<int> > matrizInc;
 
-	vector<int> grauVertice;
+	map<string, int> grauVertice;
 
 	int tipo; // 0 para não-direcionado, 1 para direcionado.
 
@@ -58,7 +58,7 @@ public:
 	int getGrauVertice();
 	int getGrauGrafo();
 	int verificaConexo();
-	void DFS(int u, int grupo, vector<int> &grupoVertices);
+	void DFS(string u, int grupo, vector<int> &grupoVertices);
 
 	void RemoveVertice(string v1);
 	void mostraComplMatAdj();
