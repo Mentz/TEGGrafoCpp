@@ -356,7 +356,6 @@ void Grafo::DFS(string u, int grupo, map<string, int> &grupoVertices) {
 			DFS(atual, grupo, grupoVertices);
 		}
 	} 
-	getchar();
 }   
 
 int Grafo::verificaConexo() {
