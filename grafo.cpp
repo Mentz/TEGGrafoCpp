@@ -106,7 +106,7 @@ int menu(Grafo *g)
 			if(grupos == 0)
 				cout << "O grafo é conexo" << endl;
 			else
-				cout << "O grafo é desconexo e possui " << grupos+1 << " subgrafos" << endl; 
+				cout << "O grafo é desconexo e possui " << grupos << " subgrafos" << endl; 
 			break;
 		default:
 			operacao = -1;
@@ -348,32 +348,34 @@ void Grafo::RemoveVertice(string v1) {
 	
 }
 
-void Grafo::DFS(string u, int grupo, vector<int> &grupoVertices) {
-
+void Grafo::DFS(string u, int grupo, map<string, int> &grupoVertices) {
+	grupoVertices[u] = grupo;
+	for(int i = 0; i < this->listaAdj[u].size(); i++) {
+		string atual = this->listaAdj[u][i];
+		if(grupoVertices[atual] == -1) {
+			DFS(atual, grupo, grupoVertices);
+		}
+	} 
+	getchar();
 }   
 
 int Grafo::verificaConexo() {
 	map<string, int> grupoVertices;
+	map<string, int> :: iterator it;
+
 	for(int i = 0; i < vertices.size(); i++) { 
 		grupoVertices[vertices[i]] = -1;
 	}
-
-	map<string, int> :: iterator it = grupoVertices.begin();
-	for(; it != grupoVertices.end(); it++) {
-		cout << it->first << " " << it->second << endl;
-	}
-
-	cout << grupoVertices.size() << endl;
-
-	/*
+	
 	int grupo = 0;
-	for(int i = 0; i < grupoVertices.size(); i++) { 
-		if(grupoVertices[i] == -1) {
-			DFS(grupoVertices[i], grupo, grupoVertices);
+	for(it = grupoVertices.begin(); it != grupoVertices.end(); it++) {
+		string atual = it->first;
+		int grupoAtual = it->second;
+		
+		if(grupoAtual == -1) {
+			this->DFS(atual, grupo, grupoVertices);
+			grupo++;
 		}
-
-		grupo++;
 	}
-	*/
-	return 0;
+	return grupo;
 }

@@ -58,7 +58,7 @@ public:
 	int getGrauVertice();
 	int getGrauGrafo();
 	int verificaConexo();
-	void DFS(string u, int grupo, vector<int> &grupoVertices);
+	void DFS(string u, int grupo, map<string, int> &grupoVertices);
 
 	void RemoveVertice(string v1);
 	void mostraComplMatAdj();
