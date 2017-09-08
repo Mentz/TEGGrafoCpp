@@ -77,7 +77,8 @@ int menu(Grafo *g)
 		case 8:
 			if (g->getTipo() == -1)
 				g->setTipo();
-
+			
+			cout << "Insira o nome do novo vértice: ";
 			cin >> u.nome;
 			g->addVertice(u);
 			break;
