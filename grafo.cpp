@@ -103,7 +103,7 @@ int menu(Grafo *g)
 
 		case 11:
 			grupos = g->verificaConexo();
-			if(grupos == 0)
+			if(grupos <= 1)
 				cout << "O grafo é conexo" << endl;
 			else
 				cout << "O grafo é desconexo e possui " << grupos << " subgrafos" << endl; 
@@ -138,14 +138,14 @@ void Grafo::leGrafo ()
 		file >> v;
 		this->addVertice(v);
 	}
-
+	
 	for (int i = 0; i < na; i++)
 	{
 		string vAux1, vAux2;
 		file >> vAux1 >> vAux2;
 		this->addAresta(vAux1, vAux2);
 	}
-	
+
 	file.close();
 }
 
@@ -293,7 +293,6 @@ void Grafo::addAresta(string v1, string v2)
 		this->listaAdj[v2].push_back(v1);
 	} else {
 		this->listaAdj[v1].push_back(v2);
-		getchar();
 	}
 	// fim
 }
@@ -327,7 +326,6 @@ void Grafo::RemoveVertice(string v1) {
 			for (itInc = this -> matrizInc.begin(); itInc != this->matrizInc.end(); itInc++) { 
 				(itInc->second).erase((itInc->second).begin() + i);
 			}
-			getchar();
 			i--;
 		}
 	}
@@ -376,5 +374,10 @@ int Grafo::verificaConexo() {
 			grupo++;
 		}
 	}
+
+	for(it = grupoVertices.begin(); it != grupoVertices.end(); it++) {
+		cout << it -> first << " " << it -> second << endl;
+	}
+	getchar();
 	return grupo;
 }
