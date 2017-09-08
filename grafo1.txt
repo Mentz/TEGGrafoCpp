@@ -1,4 +1,9 @@
-4 2 0
-N1 N2 N3 N4
-N1 N2
-N3 N4
+5 7 0
+a bb ccc dddd eeeee
+a bb
+a ccc
+a ccc
+ccc ccc
+bb ccc
+bb ccc
+dddd eeeee

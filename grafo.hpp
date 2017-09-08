@@ -5,7 +5,8 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
-#include <bits/stdc++.h>
+#include <map>
+#include <iomanip>
 
 #define MAX(a,b) ((a<b)?b:a)
 #define NAODIRECIONADO 0
