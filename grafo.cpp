@@ -169,7 +169,9 @@ void Grafo::mostraMatAdj(bool complemento) {
 	for(i = 0, it = this->matrizAdj.begin(); it != this->matrizAdj.end(); i++, it++) {
 		cout << setw(maxS) << it -> first;
 		map<string, int>:: iterator it2;
-		for(j = 0, it2 = this->matrizAdj[it->first].begin(); it2 != this->matrizAdj[it->first].end(); j++, it2++){
+		for(j = 0, it2 = this->matrizAdj[it->first].begin();
+			it2 != this->matrizAdj[it->first].end(); j++, it2++)
+		{
 			if(!complemento)
 				cout << setw(compNo[j] + 2) << it2 -> second;
 			else {

@@ -17,6 +17,7 @@ using namespace std;
 class GVertice {
 	string nome;
 	int cor;
+	int grau;
 	bool marcado;
 };
 
@@ -31,11 +32,11 @@ private:
 	vector<GVertice> vertices;
 	vector<GAresta> arestas;
 
-	map<string, map<string, int > > matrizAdj;
-	map<string, vector<string> > listaAdj;
-	map<string, vector<int> > matrizInc;
+	//map<string, map<string, int > > matrizAdj;
+	//map<string, vector<string> > listaAdj;
+	//map<string, vector<int> > matrizInc;
 
-	map<string, int> grauVertice;
+	//map<string, int> grauVertice;
 
 	int tipo; // 0 para não-direcionado, 1 para direcionado.
 
@@ -49,11 +50,15 @@ public:
 
 	void construirMatAdj();
 
-	// Aceita um GVertice como argumento, retorna sucesso (0) ou fracasso (1).
+	/**	void addVertice([string v1|GVertice v1]);
+	 *	Pode ter argumentos:
+	 *	1. Nada, solicitando nome e peso (opcional) do vértice;
+	 *	2. Uma string, gerando um vértice simples (sem peso);
+	 *	3. Um GVertice completo.
+	 */
 	void addVertice();
-
-	// Não tem argumentos, pede o nome do vértice a ser incluso.
-	void addVertice();
+	void addVertice(string v1);
+	void addVertice(GVertice v1);
 
 	// Não tem argumentos, pede o nome do vértice a ser removido.
 	void remVertice();
