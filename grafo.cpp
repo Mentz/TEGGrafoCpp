@@ -13,6 +13,11 @@ using namespace std;
 
 
 /**	A implementar:
+<<<<<<< HEAD
+=======
+ *	Listas de adjacência
+ *	Vetores de adjacência
+>>>>>>> master
  *	Os métodos da classe 'Grafo'
  */
 
@@ -69,6 +74,7 @@ int menu(Grafo *g)
 			g->mostraMatAdj(true);
 			break;
 		case 8:
+<<<<<<< HEAD
 			cout << "Quantidade de vértices para remoção" << endl;
 			cin >> nvRemocao;
 			cout << "Digite lista de vértices para remoção" << endl;
@@ -77,6 +83,14 @@ int menu(Grafo *g)
 				cin >> u;
 				g->RemoveVertice(u);
 			}
+=======
+			if (g->getTipo() == -1)
+				g->setTipo();
+			
+			cout << "Insira o nome do novo vértice: ";
+			cin >> u.nome;
+			g->addVertice(u);
+>>>>>>> master
 			break;
 
 		case 9:

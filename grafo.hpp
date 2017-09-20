@@ -82,6 +82,8 @@ public:
 
 	void RemoveVertice(string v1);
 	void mostraComplMatAdj();
+
+	int verificaIsomorfismo(Grafo* g2);
 };
 
 int menu(Grafo* g);
