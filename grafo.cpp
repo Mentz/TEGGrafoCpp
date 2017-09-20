@@ -13,9 +13,6 @@ using namespace std;
 
 
 /**	A implementar:
- *	Matriz de incidência
- *	Listas de adjacência
- *	Vetores de adjacência
  *	Os métodos da classe 'Grafo'
  */
 
@@ -54,7 +51,7 @@ int menu(Grafo *g)
 			g->leGrafo();
 			break;
 		case 2:
-			g->mostraMatAdj();
+			g->mostraMatAdj(false);
 			break;
 		case 3:
 			g->mostraMatInc();
@@ -69,7 +66,7 @@ int menu(Grafo *g)
 			//g->mostraGrauGrafo();
 			break;
 		case 7:
-			g->mostraComplMatAdj();
+			g->mostraMatAdj(true);
 			break;
 		case 8:
 			cout << "Quantidade de vértices para remoção" << endl;
@@ -153,7 +150,7 @@ void Grafo::mostraComplMatAdj() {
 
 }
 
-void Grafo::mostraMatAdj() {
+void Grafo::mostraMatAdj(bool complemento) {
 	map<string, map<string, int> > :: iterator it;
 	int maxS = -1, compNo[this->matrizAdj.size()], i, j;
 	
@@ -173,7 +170,12 @@ void Grafo::mostraMatAdj() {
 		cout << setw(maxS) << it -> first;
 		map<string, int>:: iterator it2;
 		for(j = 0, it2 = this->matrizAdj[it->first].begin(); it2 != this->matrizAdj[it->first].end(); j++, it2++){
-			cout << setw(compNo[j] + 2) << it2 -> second;
+			if(!complemento)
+				cout << setw(compNo[j] + 2) << it2 -> second;
+			else {
+				int print = (it2->second == 0) ? 1 : 0;
+				cout << setw(compNo[j] + 2) << print;
+			}
 		}
 		cout << endl;	
 	}
@@ -233,8 +235,12 @@ void Grafo::addVertice(string v)
 	for(int i = 0; i < nVertices; i++){
 		if(this->matrizAdj[vertices[i]].count(v) == 0){
 			this->matrizAdj[v][vertices[i]] = 0;
+			this->matrizAdj[vertices[i]][v] = 0;
+			
+			/*this->matrizAdj[v][vertices[i]] = 0;
 			if(this->tipo == 1)
 				this->matrizAdj[vertices[i]][v] = 0;	
+			*/
 		}
 	}
 	// fim
@@ -270,10 +276,8 @@ void Grafo::addAresta(string v1, string v2)
 
 	// Atualiza matriz de adjacência
 	if(this->tipo == 0) {
-		if(this->matrizAdj[v1].count(v2) != 0)
-			this->matrizAdj[v1][v2]++;
-		else
-			this->matrizAdj[v2][v1]++;
+		this->matrizAdj[v1][v2]++;
+		this->matrizAdj[v2][v1]++;
 	}
 	else 
 		this->matrizAdj[v1][v2]++;

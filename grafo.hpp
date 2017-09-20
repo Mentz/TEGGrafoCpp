@@ -14,6 +14,18 @@
 
 using namespace std;
 
+class GVertice {
+	string nome;
+	int cor;
+	bool marcado;
+}
+
+class GAresta {
+	string nome;
+	GVertice v1, v2;
+	bool marcado;
+}
+
 class Grafo {
 private:
 	int nArestas;
@@ -36,18 +48,21 @@ public:
 	void mostraGrau();
 	void mostraGrauGrafo();
 
-
 	void construirMatAdj();
 
 	// Aceita um GVertice como argumento, retorna sucesso (0) ou fracasso (1).
-	void addVertice(string v);
+	void addVertice();
 
 	// Não tem argumentos, pede o nome do vértice a ser incluso.
 	void addVertice();
 
 	// Não tem argumentos, pede o nome do vértice a ser removido.
 	void remVertice();
-	void addAresta(string v1, string v2);
+
+	/** addAresta()
+	 *	Não possui argumentos, apresenta os vértices e pede quais serão parte da aresta.
+	 */
+	void addAresta();
 
 	// Lista as arestas e usuário escolhe qual remover.
 	void remAresta();
