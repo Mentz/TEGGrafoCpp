@@ -18,19 +18,18 @@ class GVertice {
 	string nome;
 	int cor;
 	bool marcado;
-}
+};
 
 class GAresta {
 	string nome;
 	GVertice v1, v2;
 	bool marcado;
-}
+};
 
 class Grafo {
 private:
-	int nArestas;
-	int nVertices;
-	vector<string> vertices;
+	vector<GVertice> vertices;
+	vector<GAresta> arestas;
 
 	map<string, map<string, int > > matrizAdj;
 	map<string, vector<string> > listaAdj;
