@@ -61,9 +61,16 @@ public:
 	void addVertice(GVertice v1);
 
 	// Não tem argumentos, pede o nome do vértice a ser removido.
+	/** void remVertice([string v1]);
+	 *	Pode ter argumentos:
+	 *	1. Nenhum. Apresenta lista de vértices e pede o nome do vértice
+	 *		a ser removido;
+	 *	2. Uma string, removendo o vértice que tem nome igual à string.
+	 */
 	void remVertice();
+	void remVertice(string v);
 
-	/** addAresta()
+	/** void addAresta();
 	 *	Não possui argumentos, apresenta os vértices e pede quais serão parte da aresta.
 	 */
 	void addAresta();

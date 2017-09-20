@@ -13,11 +13,6 @@ using namespace std;
 
 
 /**	A implementar:
-<<<<<<< HEAD
-=======
- *	Listas de adjacência
- *	Vetores de adjacência
->>>>>>> master
  *	Os métodos da classe 'Grafo'
  */
 
@@ -52,63 +47,45 @@ int menu(Grafo *g)
 	{
 		case 0:
 			break;
+		
 		case 1:
 			g->leGrafo();
 			break;
+		
 		case 2:
 			g->mostraMatAdj(false);
 			break;
+		
 		case 3:
 			g->mostraMatInc();
 			break;
+		
 		case 4:
 			g->mostraListaAdj();
 			break;
+		
 		case 5:
 			g->mostraGrau();
 			break;
+		
 		case 6:
 			//g->mostraGrauGrafo();
 			break;
+		
 		case 7:
 			g->mostraMatAdj(true);
 			break;
+		
 		case 8:
-<<<<<<< HEAD
-			cout << "Quantidade de vértices para remoção" << endl;
-			cin >> nvRemocao;
-			cout << "Digite lista de vértices para remoção" << endl;
-			for(i = 0; i < nvRemocao; i++){
-				string u;
-				cin >> u;
-				g->RemoveVertice(u);
-			}
-=======
-			if (g->getTipo() == -1)
-				g->setTipo();
-			
-			cout << "Insira o nome do novo vértice: ";
-			cin >> u.nome;
-			g->addVertice(u);
->>>>>>> master
+			g->RemoveVertice();
 			break;
-
+		
 		case 9:
-			cout << "Quantidade de vértices para adicão" << endl;
-			cin >> qvAdicao;
-			cout << "Digite lista de vértices para adição" << endl;
-			for(i = 0; i < qvAdicao; i++){
-				cin >> u;
-				g->addVertice(u);
-			}
+			g->addVertice();
 			break;
 		
 		case 10:
-			cout << "Adição de arestas" << endl;
-			cout << "Vértice 1: ";
-			cin >> u;
-			cout << "Vértice 2: ";
-			cin >> u1;
+			
 			g->addAresta(u, u1);
 			break;
 
@@ -117,7 +94,8 @@ int menu(Grafo *g)
 			if(grupos <= 1)
 				cout << "O grafo é conexo" << endl;
 			else
-				cout << "O grafo é desconexo e possui " << grupos << " subgrafos" << endl; 
+				//cout << "O grafo é desconexo e possui " << grupos << " subgrafos" << endl; 
+				puts("O grafo é desconexo");
 			break;
 		default:
 			operacao = -1;
@@ -236,8 +214,8 @@ void Grafo::mostraGrau() {
 
 void Grafo::addVertice(string v)
 {
-	for (int i = 0; i < nVertices; i++) {
-		if (vertices[i] == v)
+	for (int i = 0; i < (int) vertices.size(); i++) {
+		if (vertices[i].nome == v)
 		{
 			puts("Já existe um vértice com esse nome");
 			exit(EXIT_FAILURE);
