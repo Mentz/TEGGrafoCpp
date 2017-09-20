@@ -1,8 +1,9 @@
-3 6 0
-a b c
-a b
-a c
-a c
-c c
-b c
-b c
+5 7 0
+a bb ccc dddd eeeee
+a bb
+a ccc
+a ccc
+ccc ccc
+bb ccc
+bb ccc
+dddd eeeee

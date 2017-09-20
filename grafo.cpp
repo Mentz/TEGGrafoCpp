@@ -1,6 +1,4 @@
 #include "grafo.hpp"
-#include <iomanip>
-#include <iostream>
 using namespace std;
 
 /** Notas:
@@ -15,8 +13,11 @@ using namespace std;
 
 
 /**	A implementar:
+<<<<<<< HEAD
+=======
  *	Listas de adjacência
  *	Vetores de adjacência
+>>>>>>> master
  *	Os métodos da classe 'Grafo'
  */
 
@@ -24,30 +25,28 @@ int menu(Grafo *g)
 {
 	int operacao = -1;
 	int grupos = 0;
-	puts("\n####################################################\n");
+	cout << endl;
 	puts("Menu:");
-	puts("  0. Sair");
+	puts("  0. Sair deste utilitário.");
 	puts("  1. Carregar grafo (arquivo .txt)");
 	puts("  2. Apresenta matriz de adjacência");
 	puts("  3. Apresenta matriz de incidência");
-	puts("  4. Apresenta lista de adjacência");
+	puts("  4. Apresenta lista de adjacência (*)");
 	puts("  5. Apresentar grau do nó");
 	puts("  6. Apresentar grau do grafo (*)");
 	puts("  7. Complemento matriz de adjacência");
-	puts("  8. Adicionar vértice");
-	puts("  9. Remover vértices");
+	puts("  8. Remover vértices");
+	puts("  9. Adicionar vértie");
 	puts(" 10. Adicionar aresta");
-	puts(" 11. Verificar se grafo é conexo (*)");
-	puts("\t(*): Não implementado");
+	puts(" 11. Verificar se grafo é conexo");
 	cout << "Escolha a operação: ";
 
 	scanf("%d", &operacao);
-	//system("clear");
+	system("clear");
 
-	puts("----------\n");
-
-	GVertice u, u1;
-	string uaux;
+	
+	int nvRemocao, qvAdicao, i;
+	string u, u1;
 
 	switch(operacao)
 	{
@@ -57,7 +56,7 @@ int menu(Grafo *g)
 			g->leGrafo();
 			break;
 		case 2:
-			g->mostraMatAdj();
+			g->mostraMatAdj(false);
 			break;
 		case 3:
 			g->mostraMatInc();
@@ -72,67 +71,62 @@ int menu(Grafo *g)
 			//g->mostraGrauGrafo();
 			break;
 		case 7:
-			g->mostraComplMatAdj();
+			g->mostraMatAdj(true);
 			break;
 		case 8:
+<<<<<<< HEAD
+			cout << "Quantidade de vértices para remoção" << endl;
+			cin >> nvRemocao;
+			cout << "Digite lista de vértices para remoção" << endl;
+			for(i = 0; i < nvRemocao; i++){
+				string u;
+				cin >> u;
+				g->RemoveVertice(u);
+			}
+=======
 			if (g->getTipo() == -1)
 				g->setTipo();
 			
 			cout << "Insira o nome do novo vértice: ";
 			cin >> u.nome;
 			g->addVertice(u);
+>>>>>>> master
 			break;
+
 		case 9:
-			cin >> u.nome;
-			g->removeVertice(u);
+			cout << "Quantidade de vértices para adicão" << endl;
+			cin >> qvAdicao;
+			cout << "Digite lista de vértices para adição" << endl;
+			for(i = 0; i < qvAdicao; i++){
+				cin >> u;
+				g->addVertice(u);
+			}
 			break;
+		
 		case 10:
-			if (g->getTipo() == -1)
-				g->setTipo();
 			cout << "Adição de arestas" << endl;
-			cout << "Vértice de partida: ";
-			cin >> u.nome;
-			cout << "Vértice de destino: ";
-			cin >> u1.nome;
+			cout << "Vértice 1: ";
+			cin >> u;
+			cout << "Vértice 2: ";
+			cin >> u1;
 			g->addAresta(u, u1);
 			break;
 
 		case 11:
 			grupos = g->verificaConexo();
-			if(grupos == 0)
+			if(grupos <= 1)
 				cout << "O grafo é conexo" << endl;
 			else
-				cout << "O grafo é desconexo e possui " << grupos+1 << " subgrafos" << endl; 
+				cout << "O grafo é desconexo e possui " << grupos << " subgrafos" << endl; 
 			break;
 		default:
 			operacao = -1;
 			break;
 	}
 
-
 	return operacao;
 }
 
-Grafo::Grafo()
-{
-	this->tipo = -1;
-	this->nArestas = 0;
-	this->nVertices = 0;
-}
-
-int Grafo::getTipo()
-{
-	return this->tipo;
-}
-
-void Grafo::setTipo()
-{
-	puts("Informe o tipo do grafo:");
-	puts(" 0 - não-direcionado");
-	puts(" 1 - direcionado");
-	puts("\nDigite \'0\' ou \'1\'.");
-	cin >> this->tipo;
-}
 
 void Grafo::leGrafo ()
 {
@@ -142,266 +136,275 @@ void Grafo::leGrafo ()
 	ifstream file;
 	file.open(caminho);
 
-	int nn, na;
+	int nn, na, tipo;
 	
-	file >> nn >> na >> this -> tipo;
-
-	GVertice vAux1, vAux2;
-	this -> nArestas  = na;
-	this -> nVertices = nn;
+	file >> nn >> na >> tipo;
+	this -> nArestas  = 0;
+	this -> nVertices = 0;
+	this -> tipo = tipo;
 
 	for (int i = 0; i < nn; i++)
 	{
-		file >> vAux1.nome;
-		this->addVertice(vAux1);
-	}
-
-	for (int i = 0; i < na; i++)
-	{
-		file >> vAux1.nome >> vAux2.nome;
-		this->addAresta(vAux1, vAux2);
+		string v;
+		file >> v;
+		this->addVertice(v);
 	}
 	
-	file.close();
+	for (int i = 0; i < na; i++)
+	{
+		string vAux1, vAux2;
+		file >> vAux1 >> vAux2;
+		this->addAresta(vAux1, vAux2);
+	}
 
-	puts("\nArquivo lido com sucesso!");
+	file.close();
 }
 
 void Grafo::mostraComplMatAdj() {
-	int maxLen = 0;
-	for (int i = 0; i < nVertices; i++)
-		maxLen = MAX(maxLen, (int) getVerticeIndex(i).size());
-	cout << setw(maxLen) << "";
-	for(int i = 0; i < nVertices; i++)
-		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
-	cout << endl;
-	for (int i = 0; i < nVertices; i++){
-		for (int j = 0; j < nVertices; j++){	
-			if(j == 0)
-				cout << setw(maxLen) << getVerticeIndex(i);
-			cout << setw((int) getVerticeIndex(j).size() + 2) << !matrizAdj[i][j];
-		}
-		cout << endl;
-	}
+
 }
 
-void Grafo::mostraMatAdj()
-{
-	int maxLen = 0;
-	for (int i = 0; i < nVertices; i++)
-		maxLen = MAX(maxLen, (int) getVerticeIndex(i).size());
-	cout << setw(maxLen) << "";
-	for(int i = 0; i < nVertices; i++)
-		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
+void Grafo::mostraMatAdj(bool complemento) {
+	map<string, map<string, int> > :: iterator it;
+	int maxS = -1, compNo[this->matrizAdj.size()], i, j;
+	
+	for(i = 0, it = this->matrizAdj.begin(); it != this->matrizAdj.end(); i++, it++) {
+		compNo[i] = it->first.size();
+		maxS = MAX(maxS, compNo[i]);
+	}
+	
+	cout << setw(maxS) << "";
+
+	for(i = 0, it = this->matrizAdj.begin(); it != this->matrizAdj.end(); i++, it++)
+		cout << setw(compNo[i] + 2) << it -> first;
+
 	cout << endl;
-	for (int i = 0; i < nVertices; i++){
-		for (int j = 0; j < nVertices; j++){
-			if(j == 0)
-				cout << setw(maxLen) << getVerticeIndex(i);
-			cout << setw((int) getVerticeIndex(j).size() + 2) << matrizAdj[i][j];
+
+	for(i = 0, it = this->matrizAdj.begin(); it != this->matrizAdj.end(); i++, it++) {
+		cout << setw(maxS) << it -> first;
+		map<string, int>:: iterator it2;
+		for(j = 0, it2 = this->matrizAdj[it->first].begin();
+			it2 != this->matrizAdj[it->first].end(); j++, it2++)
+		{
+			if(!complemento)
+				cout << setw(compNo[j] + 2) << it2 -> second;
+			else {
+				int print = (it2->second == 0) ? 1 : 0;
+				cout << setw(compNo[j] + 2) << print;
+			}
 		}
-		cout << endl;
+		cout << endl;	
 	}
 }
 
 void Grafo::mostraMatInc() {
-	int maxLen = 2;
-	//for (int i = 0; i < nArestas; i++)
-	//	maxLen = MAX(maxLen, (int) getArestaIndex(i).size());
-	cout << setw(maxLen) << "";
-	for (int i = 0; i < (int) this -> vertices.size(); i++)
-		cout << setw((int) getVerticeIndex(i).size() + 2) << getVerticeIndex(i);
-	cout << endl;
+	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
+	int maxS = -1;
 
-	for (int i = 0; i < (int) this->matrizInc.size(); i++) {
-		cout << "u" << i;
-		for (int j = 0; j < nVertices; j++)
-			cout << setw((int) getVerticeIndex(j).size() + 2) << matrizInc[i][j];
-		
-		puts("");
-	} 
+	for(; it != this->matrizInc.end(); it++) {
+		maxS = MAX(maxS, (int) it->first.size());
+	}
+	
+	for(it = this->matrizInc.begin(); it != this -> matrizInc.end(); it++){
+		cout << setw(maxS) << it -> first;
+		for(int i = 0; i < (int) it->second.size(); i++){
+			cout << setw(3) << (it -> second)[i];
+		}
+		cout << endl;
+	}
 }
 
 void Grafo::mostraListaAdj() {
-	for (int i = 0; i < (int) listaAdj.size(); i++){
-		cout << getVerticeIndex(i) << ":";
-		for (int j = 0; j < (int) listaAdj[i].size(); j++) {
-			cout << " " << getVerticeIndex(listaAdj[i][j]);
+	map<string, vector<string> > :: iterator it = this->listaAdj.begin();
+
+	for(; it != this -> listaAdj.end(); it++){
+		cout << it->first << ":";
+		for(int i = 0; i < (int) (it->second).size(); i++){
+			cout << " " << (it->second)[i];
 		}
 		cout << endl;
 	}
 }
 
 void Grafo::mostraGrau() {
-	this -> calculaGrau();
-
-	cout << "Grau dos nós: " << endl;
-	for(int i = 0; i < (int) grauVertice.size(); i++)
-		cout << getVerticeIndex(i) << ": " << grauVertice[i] << endl;
+	this->calculaGrau();
+	cout << grauVertice.size() << endl;
+	map<string, int> :: iterator it = grauVertice.begin();
+	for(; it != grauVertice.end(); it++) 
+		cout << it -> first << ": " << it->second << endl;
 }
 
-void Grafo::addVertice(GVertice v)
+void Grafo::addVertice(string v)
 {
-	for (int i = 0; i < (int) vertices.size(); i++)
-		if (vertices[i].nome == v.nome)
+	for (int i = 0; i < nVertices; i++) {
+		if (vertices[i] == v)
 		{
 			puts("Já existe um vértice com esse nome");
 			exit(EXIT_FAILURE);
-		}
+        }
+    }
 	
 	vertices.push_back(v);
-
+	nVertices = vertices.size();
+	
 	// Atualizar matriz de adjacência
-	matrizAdj.push_back(vector<int>((int) vertices.size(), 0));
-	for (int i = 0; i < (int) matrizAdj.size() - 1; i++)
-		matrizAdj[i].push_back(0);
+	for(int i = 0; i < nVertices; i++){
+		if(this->matrizAdj[vertices[i]].count(v) == 0){
+			this->matrizAdj[v][vertices[i]] = 0;
+			this->matrizAdj[vertices[i]][v] = 0;
+			
+			/*this->matrizAdj[v][vertices[i]] = 0;
+			if(this->tipo == 1)
+				this->matrizAdj[vertices[i]][v] = 0;	
+			*/
+		}
+	}
 	// fim
 	
 	
 	// Atualiza matriz de incidencia
-	for(int i = 0; i < (int) matrizInc.size(); i++){
-		matrizInc[i].push_back(0);
-	}
+    this->matrizInc[v] = vector<int> (nArestas);
 	// Fim
 
 	// Atualiza lista de adjacência
-	this -> listaAdj.push_back(vector<int>());
+	this->listaAdj[v] = vector<string> (0);
 	// fim
-	
-	nVertices = this -> vertices.size();
 }
 
 void Grafo::calculaGrau() {
-	grauVertice = vector<int>((int) nVertices, 0);
-	// Calcula o grau de cada vértice a partir das colunas da matriz de Incindência
-	for(int j = 0; j < (int) this -> matrizInc[0].size(); j++){
-		for(int i = 0; i < (int) this -> matrizInc.size(); i++){
-			if(matrizInc[i][j] > 0)
-				grauVertice[j] += ABS(matrizInc[i][j]);
+	// Calcula o grau de cada vértice a partir das linhas das matriz de incidencia
+	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
+	
+	for(; it != this->matrizInc.end(); it++) {
+		int cont = 0;
+		for(int i = 0; i < (int) it->second.size(); i++) {
+			if(it->second[i] >= 1)
+				cont += it->second[i];
 		}
+		this->grauVertice[it->first] = cont;
 	}
 	// fim
 }
 
-void Grafo::addAresta(GVertice v1, GVertice v2)
+void Grafo::addAresta(string v1, string v2)
 {
-	int p1 = -1, p2 = -1;
-	for (int i = 0; i < (int) vertices.size(); i++)
-	{
-		if (vertices[i].nome == v1.nome)
-			p1 = i;
-		if (vertices[i].nome == v2.nome)
-			p2 = i;
-	}
+	this -> nArestas++;
 
-	// error checking
-	if (p1 == -1 || p2 == -1)
-	{
-		puts("Não há um vértice com o nome informado");
-		return;
+	// Atualiza matriz de adjacência
+	if(this->tipo == 0) {
+		this->matrizAdj[v1][v2]++;
+		this->matrizAdj[v2][v1]++;
 	}
-
-	// Atualizar matriz de adjacência
-	matrizAdj[p1][p2]++;
-	if (tipo == NAODIRECIONADO && p1 != p2)
-		matrizAdj[p2][p1]++;
+	else 
+		this->matrizAdj[v1][v2]++;
 	// fim
+
 
 	// Atualizar matriz de incidência
-	matrizInc.push_back(vector<int> (nVertices, 0));
-	if (tipo == DIRECIONADO)
-		matrizInc[matrizInc.size() - 1][p1]--;
-	else
-		matrizInc[matrizInc.size() - 1][p1]++;
-	matrizInc[matrizInc.size() - 1][p2]++;
-	// fim
-
-	// Atualizar lista de adjacência
-	listaAdj[p1].push_back(p2);
-	if (tipo == NAODIRECIONADO && p1 != p2)
-		listaAdj[p2].push_back(p1);
-	// fim
-
-	this->nArestas = this->arestas.size();
-}
-
-void Grafo::removeVertice(GVertice v1) {
-	int index = -1;
-	for(int i = 0; i < (int) this -> vertices.size(); i++)
-		if(this -> vertices[i].nome == v1.nome)
-			index = i;
-
-	if(index == -1){
-		puts("Não há um vertice com o nome informado");
-		return;
+	map<string, vector<int> > :: iterator it;
+	for(it = this->matrizInc.begin(); it != this->matrizInc.end(); it++) {
+		while((int) (it->second).size() != nArestas) {
+			it->second.push_back(0);
+		}
 	}
 
-	this -> vertices.erase(this->vertices.begin() + index);
-	nVertices = this->vertices.size();
+	int last = max(0, nArestas - 1);
+	this->matrizInc[v2][last]++;
+	if(this -> tipo == 0)
+		this->matrizInc[v1][last]++;
+	else
+		this->matrizInc[v1][last] = -1;
+	// fim
+
+
+	// Atualizar lista de adjacência
+	this->listaAdj[v1].push_back(v2);
+	if(this -> tipo == 0 && v1 != v2) 
+		this->listaAdj[v2].push_back(v1);
+	// fim
+}
+
+void Grafo::RemoveVertice(string v1) {
+	// Atualizando lista de vértices
+	for(int i = 0; i < (int) this->vertices.size(); i++) {
+		if(this->vertices[i] == v1) {
+			this->vertices.erase(this->vertices.begin() + i);
+			break;
+		}
+	}
+	this->nVertices = vertices.size();
+	// fim
 
 	// Removendo vertice da matriz adjacencia
-	for(int i = 0; i < (int) this->matrizAdj.size(); i++)
-		this->matrizAdj[i].erase(this->matrizAdj[i].begin() + index);
-	this->matrizAdj.erase(this->matrizAdj.begin() + index);
+	this->matrizAdj.erase(v1);
+	map<string, map<string, int> > :: iterator itAdj = this->matrizAdj.begin();
+
+	for(; itAdj != this->matrizAdj.end(); itAdj++) {
+		itAdj->second.erase(v1);
+	}
 	// fim
 
 	
 	// Removendo vertice da matriz de incidencia
-	for (int i = 0; i < (int) this->matrizInc.size(); i++) {
-		if(this -> matrizInc[i][index] != 0){
-			this -> matrizInc.erase(this -> matrizInc.begin() + i);
-			--i;
+	map<string, vector<int> > :: iterator itInc;
+	for(int i = 0; i < (int) this->matrizInc[v1].size(); i++) {
+		if(this->matrizInc[v1][i] != 0) {
+			cout << i << endl;
+			for (itInc = this -> matrizInc.begin(); itInc != this->matrizInc.end(); itInc++) { 
+				(itInc->second).erase((itInc->second).begin() + i);
+			}
+			i--;
 		}
 	}
 
-	for (int i = 0; i < (int) this->matrizInc.size(); i++){
-		this->matrizInc[i].erase(this->matrizInc[i].begin() + index);
-	}
+	this -> matrizInc.erase(v1);
 	// fim
 	
 	// Removendo vertice da lista de adjacência
-	//this->listaAdj.erase(this->listaAdj.begin() + index);
+	this->listaAdj.erase(v1);
+	map<string, vector<string> > :: iterator itLista;
+	for(itLista = this->listaAdj.begin(); itLista != this->listaAdj.end(); itLista++) {
+		for(int i = 0; i < (int) itLista->second.size(); i++) { 
+			if(itLista->second[i] == v1) 
+				itLista->second.erase(itLista->second.begin() + i);
+		}
+	}
 	// fim
-
-	this->nVertices = this->vertices.size();
 	
 }
 
-void Grafo::DFS(int u, int grupo, vector<int> &grupoVertices) {
+void Grafo::DFS(string u, int grupo, map<string, int> &grupoVertices) {
 	grupoVertices[u] = grupo;
-	for(int i = 0; i < (int) listaAdj[u].size(); i++){
-		int atual = listaAdj[u][i];
-		if(grupoVertices[atual] == -1)
+	for(int i = 0; i < (int) this->listaAdj[u].size(); i++) {
+		string atual = this->listaAdj[u][i];
+		if(grupoVertices[atual] == -1) {
 			DFS(atual, grupo, grupoVertices);
-	}
+		}
+	} 
 }   
 
 int Grafo::verificaConexo() {
-	vector<int> grupoVertices (this->nVertices, -1);
+	map<string, int> grupoVertices;
+	map<string, int> :: iterator it;
+
+	for(int i = 0; i < (int) vertices.size(); i++) { 
+		grupoVertices[vertices[i]] = -1;
+	}
 	
 	int grupo = 0;
-	for(int i = 0; i < nVertices; i++){
-		if(grupoVertices[i] == -1) {
-			if(i != 0)
-				grupo++;
-			DFS(i, grupo, grupoVertices);
+	for(it = grupoVertices.begin(); it != grupoVertices.end(); it++) {
+		string atual = it->first;
+		int grupoAtual = it->second;
+		
+		if(grupoAtual == -1) {
+			this->DFS(atual, grupo, grupoVertices);
+			grupo++;
 		}
 	}
 
+	for(it = grupoVertices.begin(); it != grupoVertices.end(); it++) {
+		cout << it -> first << " " << it -> second << endl;
+	}
+	getchar();
 	return grupo;
-}
-
-string Grafo::getVerticeIndex(int i) {
-	return this -> vertices[i].nome;
-}
-
-string Grafo::getArestaIndex(int i) {
-	return this -> arestas[i].nome;
-}
-
-int Grafo::verificaIsomorfismo(Grafo* g2)
-{
-	// Calcula um hash para cada vértice.
-	// Usa o grau de entrada, grau de saída, hash 
-	return 1;
 }
