@@ -19,9 +19,9 @@ using namespace std;
 int menu(Grafo *g)
 {
 	int operacao = -1;
-	int grupos = 0;
+	
 	cout << endl;
-	puts("Menu:");
+	puts("Menu:\n");
 	puts("  0. Sair deste utilitário.");
 	puts("  1. Carregar grafo (arquivo .txt)");
 	puts("  2. Apresenta matriz de adjacência");
@@ -37,10 +37,8 @@ int menu(Grafo *g)
 	cout << "Escolha a operação: ";
 
 	scanf("%d", &operacao);
-	system("clear");
-
+	//system("clear");
 	
-	int nvRemocao, qvAdicao, i;
 	string u, u1;
 
 	switch(operacao)
@@ -77,7 +75,7 @@ int menu(Grafo *g)
 			break;
 		
 		case 8:
-			g->RemoveVertice();
+			g->remVertice();
 			break;
 		
 		case 9:
@@ -85,13 +83,12 @@ int menu(Grafo *g)
 			break;
 		
 		case 10:
-			
-			g->addAresta(u, u1);
+			g->addAresta();
 			break;
 
 		case 11:
-			grupos = g->verificaConexo();
-		break;
+			g->verificaConexo();
+			break;
 		default:
 			operacao = -1;
 			break;
@@ -112,8 +109,8 @@ void Grafo::leGrafo ()
 	int nn, na, tipo;
 	
 	file >> nn >> na >> tipo;
-	this -> nArestas  = 0;
-	this -> nVertices = 0;
+	this -> num_arestas  = 0;
+	this -> num_vertices = 0;
 	this -> tipo = tipo;
 
 	for (int i = 0; i < nn; i++)
@@ -134,10 +131,11 @@ void Grafo::leGrafo ()
 }
 
 void Grafo::mostraComplMatAdj() {
-
+	// A implementar
 }
 
 void Grafo::mostraMatAdj(bool complemento) {
+	/*
 	map<string, map<string, int> > :: iterator it;
 	int maxS = -1, compNo[this->matrizAdj.size()], i, j;
 	
@@ -168,9 +166,11 @@ void Grafo::mostraMatAdj(bool complemento) {
 		}
 		cout << endl;	
 	}
+	*/
 }
 
 void Grafo::mostraMatInc() {
+	/*
 	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
 	int maxS = -1;
 
@@ -185,9 +185,11 @@ void Grafo::mostraMatInc() {
 		}
 		cout << endl;
 	}
+	*/
 }
 
 void Grafo::mostraListaAdj() {
+	/*
 	map<string, vector<string> > :: iterator it = this->listaAdj.begin();
 
 	for(; it != this -> listaAdj.end(); it++){
@@ -197,14 +199,32 @@ void Grafo::mostraListaAdj() {
 		}
 		cout << endl;
 	}
+	*/
 }
 
+// Apresenta o grau de todos os nós do grafo de forma bonita.
 void Grafo::mostraGrau() {
-	this->calculaGrau();
-	cout << grauVertice.size() << endl;
-	map<string, int> :: iterator it = grauVertice.begin();
-	for(; it != grauVertice.end(); it++) 
-		cout << it -> first << ": " << it->second << endl;
+	uint maxnome = 0;
+	// Calcula a maior largura de nome
+	for(uint i = 0; i < num_vertices; i++)
+		maxnome = MAX(maxnome, vertices[i].nome.size());
+	for(uint i = 0; i < num_vertices; i++) 
+		printf("d(%s)%*s= %d\n", vertices[i].nome.data(), maxnome-1, "", vertices[i].grau);
+}
+
+void Grafo::addVertice()
+{
+	string nome;
+	puts("Informe o nome do novo vértice. Não pode conter espaços.");
+	cin >> nome;
+	for (int i = 0; i < (int) vertices.size(); i++) {
+		if (vertices[i].nome == nome)
+		{
+			puts("Já existe um vértice com esse nome");
+			return;
+        }
+    }
+
 }
 
 void Grafo::addVertice(string v)
@@ -212,40 +232,65 @@ void Grafo::addVertice(string v)
 	for (int i = 0; i < (int) vertices.size(); i++) {
 		if (vertices[i].nome == v)
 		{
-			puts("Já existe um vértice com esse nome");
-			exit(EXIT_FAILURE);
+			puts("já existe um vértice com esse nome");
+			return;
         }
     }
 	
-	vertices.push_back(v);
-	nVertices = vertices.size();
+	GVertice nv(v, ++v_id_c);
 	
-	// Atualizar matriz de adjacência
-	for(int i = 0; i < nVertices; i++){
-		if(this->matrizAdj[vertices[i]].count(v) == 0){
-			this->matrizAdj[v][vertices[i]] = 0;
-			this->matrizAdj[vertices[i]][v] = 0;
-			
-			/*this->matrizAdj[v][vertices[i]] = 0;
-			if(this->tipo == 1)
-				this->matrizAdj[vertices[i]][v] = 0;	
-			*/
-		}
-	}
-	// fim
-	
-	
-	// Atualiza matriz de incidencia
-    this->matrizInc[v] = vector<int> (nArestas);
-	// Fim
+	vertices.push_back(nv);
+	num_vertices = vertices.size();
+}
 
-	// Atualiza lista de adjacência
-	this->listaAdj[v] = vector<string> (0);
-	// fim
+int Grafo::getIndexV(string v)
+{
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		if (vertices[i].nome == v)
+			return i;
+	}
+	puts("Não há um vértice com esse nome.");
+	return -1; // Não encontrado.
+}
+
+int Grafo::getIndexV(uint v_id)
+{
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		if (vertices[i].id == v_id)
+			return i;
+	}
+
+	puts("Não há um vértice com esse identificador.");
+	return -1;
+}
+
+int Grafo::getIndexA(string a)
+{
+	for (uint i = 0; i < num_arestas; i++)
+	{
+		if (arestas[i].nome == a)
+			return i;
+	}
+	puts("Não há uma aresta com esse nome.");
+	return -1; // Não encontrado.
+}
+
+int Grafo::getIndexA(uint a_id)
+{
+	for (uint i = 0; i < num_arestas; i++)
+	{
+		if (arestas[i].id == a_id)
+			return i;
+	}
+
+	puts("Não há um vértice com esse identificador.");
+	return -1;
 }
 
 void Grafo::calculaGrau() {
-	// Calcula o grau de cada vértice a partir das linhas das matriz de incidencia
+	/*a
 	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
 	
 	for(; it != this->matrizInc.end(); it++) {
@@ -256,12 +301,13 @@ void Grafo::calculaGrau() {
 		}
 		this->grauVertice[it->first] = cont;
 	}
-	// fim
+	*/
 }
 
 void Grafo::addAresta(string v1, string v2)
 {
-	this -> nArestas++;
+	/*
+	this -> num_arestas++;
 
 	// Atualiza matriz de adjacência
 	if(this->tipo == 0) {
@@ -276,12 +322,12 @@ void Grafo::addAresta(string v1, string v2)
 	// Atualizar matriz de incidência
 	map<string, vector<int> > :: iterator it;
 	for(it = this->matrizInc.begin(); it != this->matrizInc.end(); it++) {
-		while((int) (it->second).size() != nArestas) {
+		while((int) (it->second).size() != num_arestas) {
 			it->second.push_back(0);
 		}
 	}
 
-	int last = max(0, nArestas - 1);
+	int last = max(0, num_arestas - 1);
 	this->matrizInc[v2][last]++;
 	if(this -> tipo == 0)
 		this->matrizInc[v1][last]++;
@@ -295,73 +341,53 @@ void Grafo::addAresta(string v1, string v2)
 	if(this -> tipo == 0 && v1 != v2) 
 		this->listaAdj[v2].push_back(v1);
 	// fim
+	*/
 }
 
-void Grafo::RemoveVertice(string v1) {
+void Grafo::remVertice(string v) {
+	int index = getIndexV(v), a_davez;
+	if (index == -1)
+	{
+		puts("Não há vértice com esse nome.");
+		return;
+	}
+	for (uint i = vertices[index].arestas.size(); i >= 0; i--)
+	{
+		a_davez = vertices[index].arestas[i];
+		remAresta(a_davez);
+	}
+	/*
 	// Atualizando lista de vértices
-	for(int i = 0; i < (int) this->vertices.size(); i++) {
-		if(this->vertices[i] == v1) {
+	for(int i = 0; i < int(num_vertices); i++) {
+		if(this->vertices[i].nome == v) {
 			this->vertices.erase(this->vertices.begin() + i);
 			break;
 		}
 	}
-	this->nVertices = vertices.size();
+	this->num_vertices = vertices.size();
 	// fim
-
-	// Removendo vertice da matriz adjacencia
-	this->matrizAdj.erase(v1);
-	map<string, map<string, int> > :: iterator itAdj = this->matrizAdj.begin();
-
-	for(; itAdj != this->matrizAdj.end(); itAdj++) {
-		itAdj->second.erase(v1);
-	}
-	// fim
-
-	
-	// Removendo vertice da matriz de incidencia
-	map<string, vector<int> > :: iterator itInc;
-	for(int i = 0; i < (int) this->matrizInc[v1].size(); i++) {
-		if(this->matrizInc[v1][i] != 0) {
-			cout << i << endl;
-			for (itInc = this -> matrizInc.begin(); itInc != this->matrizInc.end(); itInc++) { 
-				(itInc->second).erase((itInc->second).begin() + i);
-			}
-			i--;
-		}
-	}
-
-	this -> matrizInc.erase(v1);
-	// fim
-	
-	// Removendo vertice da lista de adjacência
-	this->listaAdj.erase(v1);
-	map<string, vector<string> > :: iterator itLista;
-	for(itLista = this->listaAdj.begin(); itLista != this->listaAdj.end(); itLista++) {
-		for(int i = 0; i < (int) itLista->second.size(); i++) { 
-			if(itLista->second[i] == v1) 
-				itLista->second.erase(itLista->second.begin() + i);
-		}
-	}
-	// fim
-	
+	*/
 }
 
 void Grafo::DFS(string u, int grupo, map<string, int> &grupoVertices) {
+	/*
 	grupoVertices[u] = grupo;
 	for(int i = 0; i < (int) this->listaAdj[u].size(); i++) {
 		string atual = this->listaAdj[u][i];
 		if(grupoVertices[atual] == -1) {
 			DFS(atual, grupo, grupoVertices);
 		}
-	} 
+	}
+	*/
 }   
 
-int Grafo::verificaConexo() {
+void Grafo::verificaConexo() {
+	/*
 	map<string, int> grupoVertices;
 	map<string, int> :: iterator it;
 
 	for(int i = 0; i < (int) vertices.size(); i++) { 
-		grupoVertices[vertices[i]] = -1;
+		grupoVertices[vertices[i].nome] = -1;
 	}
 	
 	int grupo = 0;
@@ -383,24 +409,87 @@ int Grafo::verificaConexo() {
 		cout << "O grafo é conexo" << endl;
 	else
 		cout << "O grafo é desconexo e possui " << grupo << " subgrafos" << endl; 
-	
-	return grupo;
+	*/
+}
+
+uint Grafo::percorreAresta(uint a_id, uint v_id)
+{
+	int a_index = getIndexA(a_id);
+	if (arestas[a_index].v1 == v_id)
+		return arestas[a_index].v2;
+	else if (arestas[a_index].v2 == v_id)
+		return arestas[a_index].v1;
+	else
+	{
+		puts("Não é possível percorrer essa aresta.");
+		return 0;
+	}
+}
+
+bool Grafo::getMarcadoVertice(uint v_id)
+{
+	int index = getIndexV(v_id);
+	return vertices[index].marcado;
+}
+
+void Grafo::marcaVertice(uint v_id)
+{
+	int index = getIndexV(v_id);
+	if (vertices[index].marcado == false)
+		vertices[index].marcado = true;
+}
+
+void Grafo::desmarcaVertice(uint v_id)
+{
+	int index = getIndexV(v_id);
+	if (vertices[index].marcado == true)
+		vertices[index].marcado = false;
+}
+
+bool Grafo::getMarcadoAresta(uint a_id)
+{
+	int index = getIndexA(a_id);
+	return arestas[index].marcado;
+}
+
+void Grafo::marcaAresta(uint a_id)
+{
+	int index = getIndexA(a_id);
+	if (arestas[index].marcado == false)
+		arestas[index].marcado = true;
+}
+
+void Grafo::desmarcaAresta(uint a_id)
+{
+	int index = getIndexA(a_id);
+	if (arestas[index].marcado == true)
+		arestas[index].marcado = false;
 }
 
 void Grafo::rodaFleury()
 {
-	
+	if (vertices.size() < 1)
+	{
+		puts("Grafo não Euleriano.");
+		return;
+	}
+	if (fleury(0, vertices[0].id) == 1)
+	{
+		puts("Grafo é Euleriano.");
+		return;
+	}
 }
 
-void Grafo::fleury(uint v_davez_id, uint v_inicial_id, )
+bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 {
-	if (pv_davez == pv_inicial)
+	uint v_id_prox = 0, v_index_davez, a_davez = 0;
+	if (v_id_davez == v_id_inicial)
 	{
 		// Encontrado um ciclo partindo do vértice inicial.
 		int ruim = false;
 
 		// Verificar se todas as arestas foram visitadas.
-		for (int i = 0; i < (int) arestas.size(); i++)
+		for (uint i = 0; i < num_arestas; i++)
 		{
 			if (!arestas[i].marcado)
 			{
@@ -410,15 +499,39 @@ void Grafo::fleury(uint v_davez_id, uint v_inicial_id, )
 		}
 
 		if (!ruim)
+		{
+			puts("Ciclo:");
+			printf("%s", vertices[getIndexV(v_id_davez)].nome.data());
 			return true; // Todas as arestas foram percorridas, é ciclo Euleriano.
+		}
 		else
 			return false; // Nem todas as arestas foram percorridas, continue.
 	} 
-	else if (pv_davez == NULL)
+	else if (v_id_davez == 0)
 	{
-		pv_davez = pv_inicial;
+		v_id_davez = v_id_inicial;
 	}
 
-	vector<GAresta>
-	for (uint i = 0; i < 
+	v_index_davez = getIndexV(v_id_davez);
+
+	for (uint i = 0; i < vertices[v_index_davez].arestas.size(); i++)
+	{
+		a_davez = vertices[v_index_davez].arestas[i];
+		if (getMarcadoAresta(a_davez) == true)
+			continue;
+		else
+		{
+			marcaAresta(a_davez);
+			v_id_prox = percorreAresta(a_davez, v_id_davez);
+			if (fleury(v_id_prox, v_id_inicial) == true) // Deu certo, imprima o caminho.
+			{
+				printf("-%s-%s", arestas[getIndexA(a_davez)].nome.data(),
+								 vertices[getIndexV(v_id_davez)].nome.data()); 
+				return 1;
+			}
+			desmarcaAresta(a_davez);
+		}
+	}
+
+	return 0;
 }
