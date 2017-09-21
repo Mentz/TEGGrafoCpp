@@ -12,18 +12,23 @@
 #define NAODIRECIONADO 0
 #define DIRECIONADO 1
 
+typedef unsigned int uint;
+
 using namespace std;
 
-class GVertice {
+struct GVertice {
 	string nome;
-	int cor;
-	int grau;
+	uint v_id;
+	int cor; // Não implementado.
+	uint grau;
 	bool marcado;
+	vector<uint> arestas; // Guarda identificador (a_id) das arestas que tocam esse vértice.
 };
 
-class GAresta {
+struct GAresta {
 	string nome;
-	GVertice v1, v2;
+	uint a_id;
+	uint v1_id, v2_id; // Guarda identificador (v_id) dos vértices nas pontas dessa aresta.
 	bool marcado;
 };
 
@@ -31,10 +36,6 @@ class Grafo {
 private:
 	vector<GVertice> vertices;
 	vector<GAresta> arestas;
-
-	//map<string, map<string, int > > matrizAdj;
-	//map<string, vector<string> > listaAdj;
-	//map<string, vector<int> > matrizInc;
 
 	//map<string, int> grauVertice;
 
@@ -91,6 +92,15 @@ public:
 	void mostraComplMatAdj();
 
 	int verificaIsomorfismo(Grafo* g2);
+
+	// Retorna lista de arestas partindo de v.
+	vector<GAresta *> getArestaEm(string v);
+
+	// Marca vértice.
+	void marcaVertice(string v);
+
+	// Marca aresta.
+	void marcaAresta(string a);
 };
 
 int menu(Grafo* g);

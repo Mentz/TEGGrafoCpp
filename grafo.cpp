@@ -91,12 +91,7 @@ int menu(Grafo *g)
 
 		case 11:
 			grupos = g->verificaConexo();
-			if(grupos <= 1)
-				cout << "O grafo é conexo" << endl;
-			else
-				//cout << "O grafo é desconexo e possui " << grupos << " subgrafos" << endl; 
-				puts("O grafo é desconexo");
-			break;
+		break;
 		default:
 			operacao = -1;
 			break;
@@ -383,6 +378,47 @@ int Grafo::verificaConexo() {
 	for(it = grupoVertices.begin(); it != grupoVertices.end(); it++) {
 		cout << it -> first << " " << it -> second << endl;
 	}
-	getchar();
+
+	if(grupo <= 1)
+		cout << "O grafo é conexo" << endl;
+	else
+		cout << "O grafo é desconexo e possui " << grupo << " subgrafos" << endl; 
+	
 	return grupo;
+}
+
+void Grafo::rodaFleury()
+{
+	
+}
+
+void Grafo::fleury(uint v_davez_id, uint v_inicial_id, )
+{
+	if (pv_davez == pv_inicial)
+	{
+		// Encontrado um ciclo partindo do vértice inicial.
+		int ruim = false;
+
+		// Verificar se todas as arestas foram visitadas.
+		for (int i = 0; i < (int) arestas.size(); i++)
+		{
+			if (!arestas[i].marcado)
+			{
+				ruim = true;
+				break;
+			}
+		}
+
+		if (!ruim)
+			return true; // Todas as arestas foram percorridas, é ciclo Euleriano.
+		else
+			return false; // Nem todas as arestas foram percorridas, continue.
+	} 
+	else if (pv_davez == NULL)
+	{
+		pv_davez = pv_inicial;
+	}
+
+	vector<GAresta>
+	for (uint i = 0; i < 
 }
