@@ -12,6 +12,6 @@ int main(void)
 
 	// Loop do menu
 	do { res = menu(&g); } while (res != 0);
-
+	
 	return 0;
 }

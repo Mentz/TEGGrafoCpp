@@ -26,14 +26,15 @@ int menu(Grafo *g)
 	puts("  1. Carregar grafo (arquivo .txt)");
 	puts("  2. Apresenta matriz de adjacência");
 	puts("  3. Apresenta matriz de incidência");
-	puts("  4. Apresenta lista de adjacência (*)");
+	puts("  4. Apresenta lista de adjacência");
 	puts("  5. Apresentar grau do nó");
-	puts("  6. Apresentar grau do grafo (*)");
+	puts("  6. Apresentar grau do grafo");
 	puts("  7. Complemento matriz de adjacência");
-	puts("  8. Remover vértices");
-	puts("  9. Adicionar vértie");
+	puts("  8. Adicionar vértice");
+	puts("  9. Remover vértice");
 	puts(" 10. Adicionar aresta");
-	puts(" 11. Verificar se grafo é conexo");
+	puts(" 11. Remover aresta");
+	puts(" 12. Verificar se grafo é conexo");
 	cout << "Escolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -67,7 +68,7 @@ int menu(Grafo *g)
 			break;
 		
 		case 6:
-			//g->mostraGrauGrafo();
+			g->mostraGrauTotal();
 			break;
 		
 		case 7:
@@ -75,11 +76,11 @@ int menu(Grafo *g)
 			break;
 		
 		case 8:
-			g->remVertice();
+			g->addVertice();
 			break;
 		
 		case 9:
-			g->addVertice();
+			g->remVertice();
 			break;
 		
 		case 10:
@@ -87,8 +88,13 @@ int menu(Grafo *g)
 			break;
 
 		case 11:
+			g->remAresta();
+			break;
+
+		case 12:
 			g->verificaConexo();
 			break;
+
 		default:
 			operacao = -1;
 			break;
@@ -97,8 +103,8 @@ int menu(Grafo *g)
 	return operacao;
 }
 
-
-void Grafo::leGrafo ()
+/*--------------------------------------*/
+void Grafo::leGrafo()
 {
 	string caminho;
 	puts("Insira o nome do arquivo (deve estar na pasta atual):");
@@ -109,31 +115,31 @@ void Grafo::leGrafo ()
 	int nn, na, tipo;
 	
 	file >> nn >> na >> tipo;
-	this -> num_arestas  = 0;
-	this -> num_vertices = 0;
-	this -> tipo = tipo;
+	this->tipo = tipo;
 
 	for (int i = 0; i < nn; i++)
 	{
 		string v;
 		file >> v;
-		this->addVertice(v);
+		addVertice(v);
 	}
 	
 	for (int i = 0; i < na; i++)
 	{
 		string vAux1, vAux2;
 		file >> vAux1 >> vAux2;
-		this->addAresta(vAux1, vAux2);
+		addAresta(vAux1, vAux2);
 	}
 
 	file.close();
 }
 
+/*--------------------------------------*/
 void Grafo::mostraComplMatAdj() {
 	// A implementar
 }
 
+/*--------------------------------------*/
 void Grafo::mostraMatAdj(bool complemento) {
 	/*
 	map<string, map<string, int> > :: iterator it;
@@ -169,6 +175,7 @@ void Grafo::mostraMatAdj(bool complemento) {
 	*/
 }
 
+/*--------------------------------------*/
 void Grafo::mostraMatInc() {
 	/*
 	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
@@ -188,61 +195,278 @@ void Grafo::mostraMatInc() {
 	*/
 }
 
+/*--------------------------------------*/
 void Grafo::mostraListaAdj() {
-	/*
-	map<string, vector<string> > :: iterator it = this->listaAdj.begin();
-
-	for(; it != this -> listaAdj.end(); it++){
-		cout << it->first << ":";
-		for(int i = 0; i < (int) (it->second).size(); i++){
-			cout << " " << (it->second)[i];
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		printf("%s:", vertices[i].nome.data());
+		for (uint j = 0; j < vertices[i].arestas.size(); j++)
+		{
+			printf("%s %s", j?",":"",
+					getNomeV(percorreAresta(vertices[i].arestas[j], vertices[i].id)).data());
 		}
-		cout << endl;
+		puts("");
 	}
-	*/
 }
 
+/*--------------------------------------*/
 // Apresenta o grau de todos os nós do grafo de forma bonita.
 void Grafo::mostraGrau() {
-	uint maxnome = 0;
-	// Calcula a maior largura de nome
-	for(uint i = 0; i < num_vertices; i++)
-		maxnome = MAX(maxnome, vertices[i].nome.size());
 	for(uint i = 0; i < num_vertices; i++) 
-		printf("d(%s)%*s= %d\n", vertices[i].nome.data(), maxnome-1, "", vertices[i].grau);
+	{
+		printf("d(%s) = %d\n", vertices[i].nome.data(), vertices[i].grau);
+	}
 }
 
+/*--------------------------------------*/
+void Grafo::mostraGrauTotal()
+{
+	int total = 0;
+	for (uint i = 0; i < num_vertices; i++)
+		total += vertices[i].grau;
+	
+	printf("O grau total do grafo é: %d\n", total);
+}
+
+/*--------------------------------------*/
+void Grafo::atualizaNumVertices()
+{
+	num_vertices = vertices.size();
+}
+
+/*--------------------------------------*/
+void Grafo::atualizaNumArestas()
+{
+	num_arestas = arestas.size();
+}
+
+/*--------------------------------------*/
 void Grafo::addVertice()
 {
 	string nome;
 	puts("Informe o nome do novo vértice. Não pode conter espaços.");
 	cin >> nome;
-	for (int i = 0; i < (int) vertices.size(); i++) {
-		if (vertices[i].nome == nome)
-		{
-			puts("Já existe um vértice com esse nome");
-			return;
-        }
-    }
-
+	addVertice(nome);	// Chama função com parâmetro nome.
 }
 
-void Grafo::addVertice(string v)
+/*--------------------------------------*/
+// Só esse faz a adição de verdade.
+void Grafo::addVertice(string nome)
 {
-	for (int i = 0; i < (int) vertices.size(); i++) {
-		if (vertices[i].nome == v)
-		{
-			puts("já existe um vértice com esse nome");
-			return;
-        }
-    }
+	if (getIndexV(nome) != -1)
+	{
+		puts("Já existe um vértice com esse nome, vértice não adicionado.");
+		return;
+	}
 	
-	GVertice nv(v, ++v_id_c);
-	
-	vertices.push_back(nv);
-	num_vertices = vertices.size();
+	GVertice nv(nome, ++v_id_c);	// Criar item GVertice para inclusão.
+	vertices.push_back(nv);			// Incluir vértice na lista de vértices.
+
+	atualizaNumVertices();
 }
 
+/*--------------------------------------*/
+void Grafo::remVertice()
+{
+	// Lista todos os vértices e solicita qual deve ser removido.
+	puts("Lista de vértices. (ID , Nome)");
+	for (uint i = 0; i < num_vertices; i++)
+		printf("ID: %2u | Nome: %s\n", vertices[i].id, vertices[i].nome.data());
+	puts("\nDigite o ID do vértice que deseja remover ou digite '0' para cancelar.");
+	uint v_id;
+	scanf("%u", &v_id);
+	remVertice(v_id);					// Chama o método que faz a remoção.
+}
+
+/*--------------------------------------*/
+void Grafo::remVertice(string v)
+{
+	int index = getIndexV(v);
+	if (index == -1)
+		return;
+	
+	remVertice(vertices[index].id);		// Chama o método que faz a remoção.
+}
+
+/*--------------------------------------*/
+// Só esse faz a remoção de verdade.
+void Grafo::remVertice(uint v_id)
+{
+	int index = getIndexV(v_id);
+	int a_davez;
+	if (index == -1)
+	{
+		puts("Não há vértice com esse identificador.");
+		return;
+	}
+	
+	for (int i = vertices[index].arestas.size() - 1; i >= 0; i--)
+	{
+		//printf("entrei na lista de arestas, i = %u, vert[].arestas.size() = %lu\n", i, vertices[index].arestas.size());
+		a_davez = vertices[index].arestas[i];
+		//cout << "vou remover a aresta ID " << a_davez << "\n";
+		remAresta(a_davez);
+	}
+	//puts("sai da lista de arestas");
+
+	vertices.erase(vertices.begin() + index);
+
+	//puts("deletei do vetor");
+
+	atualizaNumVertices();
+}
+
+/*--------------------------------------*/
+void Grafo::addAresta()
+{
+	uint v1_id, v2_id;
+	// Lista todos os vértices e solicita qual deve ser removido.
+	puts("Lista de vértices. (ID , Nome)");
+	for (uint i = 0; i < num_vertices; i++)
+		printf("ID: %2u | Nome: %s\n", vertices[i].id, vertices[i].nome.data());
+	puts("\nDos vértices acima, digite o ID do vértice origem ou digite '0' para cancelar.");
+	scanf("%u", &v1_id);
+	if (v1_id == 0)
+		return;
+	puts("\nDigite o ID do destino ou digite '0' para cancelar.");
+	scanf("%u", &v2_id);
+	if (v2_id == 0)
+		return;
+	
+	addAresta(v1_id, v2_id);
+}
+
+/*--------------------------------------*/
+// Usado somente na leitura de um arquivo.
+void Grafo::addAresta(string v1, string v2)
+{
+	int v1_index, v2_index;
+	if ((v1_index = getIndexV(v1)) == -1 || (v2_index = getIndexV(v2)) == -1)
+	{
+		puts("Um dos vértices não existe.");
+		return;
+	}
+
+	addAresta(vertices[v1_index].id, vertices[v2_index].id);
+}
+
+/*--------------------------------------*/
+// Só esse faz a adição de verdade.
+void Grafo::addAresta(uint v1_id, uint v2_id)
+{
+	//printf("Aresta nova:  %u - %u\n", v1_id, v2_id);
+	int v1_index = getIndexV(v1_id), v2_index = getIndexV(v2_id);
+	//printf("Indices nova: %d - %d\n", v1_index, v2_index);
+	
+	if (v1_index == -1 || v2_index == -1)
+	{
+		puts("Um dos vértices não existe.");
+		return;
+	}
+	
+	GAresta na(vertices[v1_index].id, vertices[v2_index].id, ++a_id_c);
+
+	//printf("na.nome = %s\tna.id = %u\n", na.nome.data(), na.id);
+
+	vertices[v1_index].arestas.push_back(na.id);
+	if (v1_id != v2_id)
+		vertices[v2_index].arestas.push_back(na.id);
+
+	arestas.push_back(na);
+	atualizaNumArestas();
+	
+	atualizaGrauV(v1_id);
+	atualizaGrauV(v2_id);
+}
+
+/*--------------------------------------*/
+void Grafo::remAresta()
+{
+	uint a_id = 0;
+	puts("Lista de arestas: (ID , nome: Ligação)");
+	puts("-------------------------------");
+	for (uint i = 0; i < num_arestas; i++)
+		printf("ID: %3u | Nome: %s | Vértices: %s %s-> %s\n",
+				arestas[i].id, arestas[i].nome.data(), getNomeV(arestas[i].v1).data(),
+				(tipo) ? "":"<", getNomeV(arestas[i].v2).data());
+	
+	puts("");
+	puts("Digite o ID da aresta a remover ou digite '0' para cancelar.");
+	scanf("%u", &a_id);
+	if (getIndexA(a_id) == -1)
+		return;
+	remAresta(a_id);
+}
+
+/*--------------------------------------*/
+// Só esse faz a remoção de verdade.
+void Grafo::remAresta(uint a_id)
+{
+	//printf("remAresta(%u)\n", a_id);
+	int a_index = getIndexA(a_id);
+	int v1_id = arestas[a_index].v1;
+	int v2_id = arestas[a_index].v2;
+	//printf("v1_id = %u, v2_id = %u\n", v1_id, v2_id);
+	int v1_index = getIndexV(v1_id);
+	int v2_index = getIndexV(v2_id);
+	//printf("v1_index = %u, v2_index = %u\n", v1_index, v2_index);
+
+	// Atualizar a lista de arestas em cada vértice da aresta.
+	//printf("v1.arestas.size() = %lu\n", vertices[v1_index].arestas.size());
+	for (int i = vertices[v1_index].arestas.size() - 1; i >= 0; i--)
+		if (vertices[v1_index].arestas[i] == a_id)
+		{
+			//puts("achei o v1 da aresta");
+			vertices[v1_index].arestas.erase(vertices[v1_index].arestas.begin() + i);
+			//puts("deleti a referencia v1");
+			break;
+		}
+
+	//printf("v1.arestas.size() = %lu\n", vertices[v1_index].arestas.size());
+
+	//printf("v2.arestas.size() = %lu\n", vertices[v2_index].arestas.size());
+	for (int i = vertices[v2_index].arestas.size() - 1; i >= 0; i--)
+		if (vertices[v2_index].arestas[i] == a_id)
+		{
+			//puts("achei o v2 da aresta");
+			vertices[v2_index].arestas.erase(vertices[v2_index].arestas.begin() + i);
+			//puts("deleti a referencia v2");
+			break;
+		}
+	//printf("v2.arestas.size() = %lu\n", vertices[v2_index].arestas.size());
+
+	// Atualiza o grau dos vértices.
+	atualizaGrauV(v1_id);
+	atualizaGrauV(v2_id);
+
+	//printf("REMOVENDO ARESTA ID %u\n", a_id);
+	//printf("arestas.size() = %lu\n", arestas.size());
+	// Remove da lista de arestas.
+	arestas.erase(arestas.begin() + a_index);
+	//printf("arestas.size() = %lu\n", arestas.size());
+	
+	//puts("atualizaNumArestas()");
+	//printf("num_arestas = %u\n", num_arestas);
+	atualizaNumArestas();
+	//printf("num_arestas = %u\n", num_arestas);
+	//puts("SAINDO DO remAresta");
+}
+
+/*--------------------------------------*/
+string Grafo::getNomeV(uint v_id)
+{
+	int index = getIndexV(v_id);
+	return vertices[index].nome;
+}
+
+/*--------------------------------------*/
+string Grafo::getNomeA(uint a_id)
+{
+	int index = getIndexA(a_id);
+	return arestas[index].nome;
+}
+
+/*--------------------------------------*/
 int Grafo::getIndexV(string v)
 {
 	for (uint i = 0; i < num_vertices; i++)
@@ -250,22 +474,29 @@ int Grafo::getIndexV(string v)
 		if (vertices[i].nome == v)
 			return i;
 	}
-	puts("Não há um vértice com esse nome.");
+	//puts("Não há um vértice com esse nome.");
 	return -1; // Não encontrado.
 }
 
+/*--------------------------------------*/
 int Grafo::getIndexV(uint v_id)
 {
+	//printf("v_id = %u\tnum_vertices = %d\n", v_id, num_vertices);
 	for (uint i = 0; i < num_vertices; i++)
 	{
+		//printf("%d %u&&%u\\ ", i, vertices[i].id, v_id);
 		if (vertices[i].id == v_id)
+		{
+			//puts("achei");
 			return i;
+		}
 	}
 
-	puts("Não há um vértice com esse identificador.");
+	//puts("Não há um vértice com esse identificador.");
 	return -1;
 }
 
+/*--------------------------------------*/
 int Grafo::getIndexA(string a)
 {
 	for (uint i = 0; i < num_arestas; i++)
@@ -273,102 +504,63 @@ int Grafo::getIndexA(string a)
 		if (arestas[i].nome == a)
 			return i;
 	}
-	puts("Não há uma aresta com esse nome.");
+	//puts("Não há uma aresta com esse nome.");
 	return -1; // Não encontrado.
 }
 
+/*--------------------------------------*/
 int Grafo::getIndexA(uint a_id)
 {
+	//printf("getIndexA(%u)\n", a_id);
 	for (uint i = 0; i < num_arestas; i++)
 	{
+		//printf("arestas[%u].id = %u\n", i, arestas[i].id);
 		if (arestas[i].id == a_id)
+		{
+			//puts("achei");
 			return i;
+		}
 	}
 
-	puts("Não há um vértice com esse identificador.");
+	//puts("Não há uma aresta com esse identificador.");
 	return -1;
 }
 
-void Grafo::calculaGrau() {
-	/*a
-	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
-	
-	for(; it != this->matrizInc.end(); it++) {
-		int cont = 0;
-		for(int i = 0; i < (int) it->second.size(); i++) {
-			if(it->second[i] >= 1)
-				cont += it->second[i];
-		}
-		this->grauVertice[it->first] = cont;
-	}
-	*/
-}
-
-void Grafo::addAresta(string v1, string v2)
+/*--------------------------------------*/
+void Grafo::atualizaGrauV(uint v_id)
 {
-	/*
-	this -> num_arestas++;
-
-	// Atualiza matriz de adjacência
-	if(this->tipo == 0) {
-		this->matrizAdj[v1][v2]++;
-		this->matrizAdj[v2][v1]++;
-	}
-	else 
-		this->matrizAdj[v1][v2]++;
-	// fim
-
-
-	// Atualizar matriz de incidência
-	map<string, vector<int> > :: iterator it;
-	for(it = this->matrizInc.begin(); it != this->matrizInc.end(); it++) {
-		while((int) (it->second).size() != num_arestas) {
-			it->second.push_back(0);
-		}
+	//printf("atualizaGrauV(%u)\n", v_id);
+	int v_index = getIndexV(v_id), a_index = -1;
+	uint cont = vertices[v_index].arestas.size();
+	//listaArestasDeVertice(v_id);
+	for (uint i = 0; i < vertices[v_index].arestas.size(); i++)
+	{
+		a_index = getIndexA(vertices[v_index].arestas[i]);
+		if (v_id == arestas[a_index].v1 &&					// Se for um loop então soma 2 ao
+				arestas[a_index].v1 == arestas[a_index].v2)	// invés de 1 no grau do vértice.
+			cont++;
 	}
 
-	int last = max(0, num_arestas - 1);
-	this->matrizInc[v2][last]++;
-	if(this -> tipo == 0)
-		this->matrizInc[v1][last]++;
+	vertices[v_index].grau = cont;
+	//printf("grau(%u)=%u\tSaindo.\n", v_id, cont);
+}
+
+/*--------------------------------------*/
+uint Grafo::percorreAresta(uint a_id, uint v_id)
+{
+	int a_index = getIndexA(a_id);
+	if (arestas[a_index].v1 == v_id)	// Se a origem for o vértice atual, percorre.
+		return arestas[a_index].v2;
+	else if (arestas[a_index].v2 == v_id && tipo == 0) 	// Se o destino for o vértice atual e o
+		return arestas[a_index].v1; 					// grafo for não-direcionado, percorre.
 	else
-		this->matrizInc[v1][last] = -1;
-	// fim
-
-
-	// Atualizar lista de adjacência
-	this->listaAdj[v1].push_back(v2);
-	if(this -> tipo == 0 && v1 != v2) 
-		this->listaAdj[v2].push_back(v1);
-	// fim
-	*/
+	{
+		//puts("Não é possível percorrer essa aresta.");
+		return 0;
+	}
 }
 
-void Grafo::remVertice(string v) {
-	int index = getIndexV(v), a_davez;
-	if (index == -1)
-	{
-		puts("Não há vértice com esse nome.");
-		return;
-	}
-	for (uint i = vertices[index].arestas.size(); i >= 0; i--)
-	{
-		a_davez = vertices[index].arestas[i];
-		remAresta(a_davez);
-	}
-	/*
-	// Atualizando lista de vértices
-	for(int i = 0; i < int(num_vertices); i++) {
-		if(this->vertices[i].nome == v) {
-			this->vertices.erase(this->vertices.begin() + i);
-			break;
-		}
-	}
-	this->num_vertices = vertices.size();
-	// fim
-	*/
-}
-
+/*--------------------------------------*/
 void Grafo::DFS(string u, int grupo, map<string, int> &grupoVertices) {
 	/*
 	grupoVertices[u] = grupo;
@@ -381,6 +573,7 @@ void Grafo::DFS(string u, int grupo, map<string, int> &grupoVertices) {
 	*/
 }   
 
+/*--------------------------------------*/
 void Grafo::verificaConexo() {
 	/*
 	map<string, int> grupoVertices;
@@ -412,26 +605,14 @@ void Grafo::verificaConexo() {
 	*/
 }
 
-uint Grafo::percorreAresta(uint a_id, uint v_id)
-{
-	int a_index = getIndexA(a_id);
-	if (arestas[a_index].v1 == v_id)
-		return arestas[a_index].v2;
-	else if (arestas[a_index].v2 == v_id)
-		return arestas[a_index].v1;
-	else
-	{
-		puts("Não é possível percorrer essa aresta.");
-		return 0;
-	}
-}
-
+/*--------------------------------------*/
 bool Grafo::getMarcadoVertice(uint v_id)
 {
 	int index = getIndexV(v_id);
 	return vertices[index].marcado;
 }
 
+/*--------------------------------------*/
 void Grafo::marcaVertice(uint v_id)
 {
 	int index = getIndexV(v_id);
@@ -439,6 +620,7 @@ void Grafo::marcaVertice(uint v_id)
 		vertices[index].marcado = true;
 }
 
+/*--------------------------------------*/
 void Grafo::desmarcaVertice(uint v_id)
 {
 	int index = getIndexV(v_id);
@@ -446,12 +628,14 @@ void Grafo::desmarcaVertice(uint v_id)
 		vertices[index].marcado = false;
 }
 
+/*--------------------------------------*/
 bool Grafo::getMarcadoAresta(uint a_id)
 {
 	int index = getIndexA(a_id);
 	return arestas[index].marcado;
 }
 
+/*--------------------------------------*/
 void Grafo::marcaAresta(uint a_id)
 {
 	int index = getIndexA(a_id);
@@ -459,6 +643,7 @@ void Grafo::marcaAresta(uint a_id)
 		arestas[index].marcado = true;
 }
 
+/*--------------------------------------*/
 void Grafo::desmarcaAresta(uint a_id)
 {
 	int index = getIndexA(a_id);
@@ -466,6 +651,7 @@ void Grafo::desmarcaAresta(uint a_id)
 		arestas[index].marcado = false;
 }
 
+/*--------------------------------------*/
 void Grafo::rodaFleury()
 {
 	if (vertices.size() < 1)
@@ -480,6 +666,7 @@ void Grafo::rodaFleury()
 	}
 }
 
+/*--------------------------------------*/
 bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 {
 	uint v_id_prox = 0, v_index_davez, a_davez = 0;
@@ -534,4 +721,36 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 	}
 
 	return 0;
+}
+
+/*-----------------------------------*/
+void Grafo::listaVertices()
+{
+	printf("num_vertices = %d ->", num_vertices);
+	for (uint i = 0; i < vertices.size(); i++)
+	{
+		printf("%s %u %s", (i)?" |":"", vertices[i].id, vertices[i].nome.data());
+	}
+	puts("");
+}
+
+/*-----------------------------------*/
+void Grafo::listaArestas()
+{
+	printf("num_arestas = %d \t", num_arestas);
+	for (uint i = 0; i < num_arestas; i++)
+	{
+		printf("%s %u %s", (i)?"|":"", arestas[i].id, arestas[i].nome.data());
+	}
+	puts("");
+}
+
+/*-----------------------------------*/
+void Grafo::listaArestasDeVertice(uint v_id)
+{
+	for (uint i = 0; i < vertices[getIndexV(v_id)].arestas.size(); i++)
+	{
+		printf(" | %u", vertices[getIndexV(v_id)].arestas[i]);
+	}
+	puts("");
 }

@@ -31,7 +31,7 @@ struct GVertice {
 		this->cor		= 0;
 		this->grau		= 0;
 		this->marcado	= false;
-		this->arestas	= vector<uint>(0);
+		this->arestas	= vector<uint>();
 	}
 };
 
@@ -41,19 +41,15 @@ struct GAresta {
 	uint v1, v2; // Guarda identificador (v_id) dos vértices nas pontas dessa aresta.
 	bool marcado;
 
-	GAresta(string nome, uint a_id, uint v1_id, uint v2_id)
+	GAresta(uint v1_id, uint v2_id, uint a_id)
 	{
-		this->nome		= nome;
+		ostringstream oss;
+		oss << "u" << ((int) a_id);
+		this->nome		= oss.str();
 		this->id 		= a_id;
 		this->v1 		= v1_id;
 		this->v2	 	= v2_id;
 		this->marcado	= false;
-	}
-
-	GAresta(uint a_id, uint v1_id, uint v2_id)
-	{
-		// Geração de nome para arestas sem nome.
-		GAresta(string("u" + a_id), a_id, v1_id, v2_id);
 	}
 };
 
@@ -73,8 +69,8 @@ public:
 	{
 		this->num_vertices = 0;
 		this->num_arestas = 0;
-		this->v_id_c = 1;
-		this->a_id_c = 1;
+		this->v_id_c = 0;
+		this->a_id_c = 0;
 		this->tipo = -1; // Não inicializado.
 	}
 
@@ -83,19 +79,23 @@ public:
 	void mostraMatInc();
 	void mostraListaAdj();
 	void mostraGrau();
-	void mostraGrauGrafo();
+	void mostraGrauTotal();
 
 	void construirMatAdj();
+
+	// Atualiza num_vertices
+	void atualizaNumVertices();
+
+	// Atualiza num_arestas
+	void atualizaNumArestas();
 
 	/**	void addVertice([string v1|GVertice v1]);
 	 *	Pode ter argumentos:
 	 *	1. Nada, solicitando nome e peso (opcional) do vértice;
 	 *	2. Uma string, gerando um vértice simples (sem peso);
-	 *	3. Um GVertice completo.
 	 */
 	void addVertice();
 	void addVertice(string v1);
-	void addVertice(GVertice v1);
 
 	// Não tem argumentos, pede o nome do vértice a ser removido.
 	/** void remVertice([string v1]);
@@ -106,17 +106,31 @@ public:
 	 */
 	void remVertice();
 	void remVertice(string v);
+	void remVertice(uint v_id);
 
 	/** void addAresta();
 	 *	Pode ter argumentos:
 	 *	1. Nenhum: apresenta os vértices e pede quais serão parte da aresta;
 	 *	2. Nome dos dois vértices: gera um nome para a nova aresta.
+	 *	3. ID dos dois vértices: gera um nome para a nova aresta.
 	 */
 	void addAresta();
 	void addAresta(string v1, string v2);
+	void addAresta(uint v1_id, uint v2_id);
 
-	// Lista as arestas e usuário escolhe qual remover.
+	/** void remAresta(..);
+	 *	Variações:
+	 *	remAresta(); Lista as arestas e pede para o usuário escolher qual deve remover.
+	 * 	remAresta(uint a_id); Faz a remoção da aresta indicada. Não é acionado pelo usuário.
+	 */
 	void remAresta();
+	void remAresta(uint a_id);
+
+	// Retorna o nome do vértice baseado no ID dele.
+	string getNomeV(uint v_id);
+
+	// Retorna o nome da aresta baseado no ID dela.
+	string getNomeA(uint a_id);
 
 	/** uint getIndexV(..);
 	 *	Variações:
@@ -135,21 +149,24 @@ public:
 	int getIndexA(string a);
 	int getIndexA(uint a_id);
 
-	// Calcula grau de cada vértice
-	void calculaGrau();
+	// Calcula grau do vértice fornecido
+	void atualizaGrauV(uint v_id);
 
-	// Lista os vértices e usuário escolhe um para ver o grau.
+	// Apresenta os graus de todos os vértices.
 	void getGrauVertice();
+
+	// Apresenta o grau do grafo.
 	void getGrauGrafo();
+
+	// Percorre a aresta com base no vértice de partida
+	uint percorreAresta(uint a_id, uint v_id);
+
 	void verificaConexo();
 	void DFS(string u, int grupo, map<string, int> &grupoVertices);
 
 	void mostraComplMatAdj();
 
 	int verificaIsomorfismo(Grafo* g2);
-
-	// Percorre a aresta com base no vértice de partida
-	uint percorreAresta(uint a_id, uint v_id);
 
 	// Marcação de vértice.
 	bool getMarcadoVertice(uint v_id); // Retorna true se está marcado, false se não.
@@ -164,6 +181,11 @@ public:
 	// Verifica se o grafo é Euleriano
 	void rodaFleury();
 	bool fleury(uint v_davez_id, uint v_inicial_id);
+
+	// DEGUB:
+	void listaVertices();
+	void listaArestas();
+	void listaArestasDeVertice(uint v_id);
 };
 
 int menu(Grafo* g);
