@@ -20,8 +20,9 @@ int menu(Grafo *g)
 {
 	int operacao = -1;
 	
-	cout << endl;
-	puts("Menu:\n");
+	puts("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");;
+	puts("/*------------------------------------*/");
+	puts("Menu:");
 	puts("  0. Sair deste utilitário.");
 	puts("  1. Carregar grafo (arquivo .txt)");
 	puts("  2. Apresenta matriz de adjacência");
@@ -31,17 +32,18 @@ int menu(Grafo *g)
 	puts("  6. Apresentar grau do grafo");
 	puts("  7. Complemento matriz de adjacência");
 	puts("  8. Adicionar vértice");
-	puts("  9. Remover vértice");
-	puts(" 10. Adicionar aresta");
-	puts(" 11. Remover aresta");
-	puts(" 12. Verificar se grafo é conexo");
-	cout << "Escolha a operação: ";
+	puts("  9. Listar vértices");
+	puts(" 10. Remover vértice");
+	puts(" 11. Adicionar aresta");
+	puts(" 12. Listar arestas");
+	puts(" 13. Remover aresta");
+	puts(" 14. Verificar se grafo é conexo");
+	puts(" 15. Verificar se grafo é Euleriano");
+	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
 	//system("clear");
 	
-	string u, u1;
-
 	switch(operacao)
 	{
 		case 0:
@@ -80,24 +82,42 @@ int menu(Grafo *g)
 			break;
 		
 		case 9:
+			g->listaVertices();
+			break;
+
+		case 10:
 			g->remVertice();
 			break;
 		
-		case 10:
+		case 11:
 			g->addAresta();
 			break;
 
-		case 11:
+		case 12:
+			g->listaArestas();
+			break;
+
+		case 13:
 			g->remAresta();
 			break;
 
-		case 12:
+		case 14:
 			g->verificaConexo();
+			break;
+
+		case 15:
+			g->rodaFleury();
 			break;
 
 		default:
 			operacao = -1;
 			break;
+	}
+	
+	if (operacao != 0)
+	{
+		puts("Pressione 'Enter' para continuar.");
+		getc(stdin); getc(stdin);
 	}
 
 	return operacao;
@@ -221,11 +241,38 @@ void Grafo::mostraGrau() {
 /*--------------------------------------*/
 void Grafo::mostraGrauTotal()
 {
-	int total = 0;
+	uint total = 0, mini = 1<<31, maxi = 0;
 	for (uint i = 0; i < num_vertices; i++)
+	{
+		mini = MIN(mini, vertices[i].grau);
+		maxi = MAX(maxi, vertices[i].grau);
 		total += vertices[i].grau;
+	}
 	
-	printf("O grau total do grafo é: %d\n", total);
+	printf("Grau mínimo = %d\nGrau máximo = %d\nGrau total  = %d\n", mini, maxi, total);
+}
+
+/*-----------------------------------*/
+void Grafo::listaVertices()
+{
+	printf("Vértices = %u\n", num_vertices);
+	for (uint i = 0; i < vertices.size(); i++)
+		printf("ID: %3u | Nome: %s\n", vertices[i].id, vertices[i].nome.data());
+	
+	puts("");
+}
+
+/*-----------------------------------*/
+void Grafo::listaArestas()
+{
+	printf("Arestas = %u\n", num_arestas);
+	for (uint i = 0; i < num_arestas; i++)
+		printf("ID: %3u | Nome: %s | Vértices: %s %s-> %s | Marcado: %s\n",
+				arestas[i].id, arestas[i].nome.data(), getNomeV(arestas[i].v1).data(),
+				(tipo) ? "":"<", getNomeV(arestas[i].v2).data(),
+				getMarcadoAresta(arestas[i].id) ? "Sim":"Não");
+
+	puts("");
 }
 
 /*--------------------------------------*/
@@ -269,7 +316,7 @@ void Grafo::addVertice(string nome)
 void Grafo::remVertice()
 {
 	// Lista todos os vértices e solicita qual deve ser removido.
-	puts("Lista de vértices. (ID , Nome)");
+	puts("Lista de vértices:");
 	for (uint i = 0; i < num_vertices; i++)
 		printf("ID: %2u | Nome: %s\n", vertices[i].id, vertices[i].nome.data());
 	puts("\nDigite o ID do vértice que deseja remover ou digite '0' para cancelar.");
@@ -383,10 +430,9 @@ void Grafo::addAresta(uint v1_id, uint v2_id)
 void Grafo::remAresta()
 {
 	uint a_id = 0;
-	puts("Lista de arestas: (ID , nome: Ligação)");
-	puts("-------------------------------");
+	puts("Lista de arestas:");
 	for (uint i = 0; i < num_arestas; i++)
-		printf("ID: %3u | Nome: %s | Vértices: %s %s-> %s\n",
+		printf("id: %3u | nome: %s | vértices: %s %s-> %s\n",
 				arestas[i].id, arestas[i].nome.data(), getNomeV(arestas[i].v1).data(),
 				(tipo) ? "":"<", getNomeV(arestas[i].v2).data());
 	
@@ -654,16 +700,18 @@ void Grafo::desmarcaAresta(uint a_id)
 /*--------------------------------------*/
 void Grafo::rodaFleury()
 {
-	if (vertices.size() < 1)
-	{
-		puts("Grafo não Euleriano.");
-		return;
+	if (num_vertices <= 1)					// Essa condição é para impedir que grafos
+	{										// sem vértices causem erros de segmentação
+		puts("Grafo não é Euleriano.");		// ao tentar acessar vertices[0].
 	}
-	if (fleury(0, vertices[0].id) == 1)
-	{
-		puts("Grafo é Euleriano.");
-		return;
-	}
+	else if (fleury(0, vertices[0].id) == 1)
+		puts("\nGrafo é Euleriano.");			// Se é euleriano, informe ao usuário.
+	else
+		puts("Grafo não é Euleriano.");			// Se não, informe também.
+
+	// Reiniciar estado de marcações.
+	for (uint i = 0; i < num_arestas; i++)
+		desmarcaAresta(arestas[i].id);
 }
 
 /*--------------------------------------*/
@@ -721,28 +769,6 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 	}
 
 	return 0;
-}
-
-/*-----------------------------------*/
-void Grafo::listaVertices()
-{
-	printf("num_vertices = %d ->", num_vertices);
-	for (uint i = 0; i < vertices.size(); i++)
-	{
-		printf("%s %u %s", (i)?" |":"", vertices[i].id, vertices[i].nome.data());
-	}
-	puts("");
-}
-
-/*-----------------------------------*/
-void Grafo::listaArestas()
-{
-	printf("num_arestas = %d \t", num_arestas);
-	for (uint i = 0; i < num_arestas; i++)
-	{
-		printf("%s %u %s", (i)?"|":"", arestas[i].id, arestas[i].nome.data());
-	}
-	puts("");
 }
 
 /*-----------------------------------*/

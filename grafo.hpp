@@ -9,6 +9,7 @@
 #include <iomanip>
 
 #define MAX(a,b) ((a<b)?b:a)
+#define MIN(a,b) ((a<b)?a:b)
 #define NAODIRECIONADO 0
 #define DIRECIONADO 1
 
@@ -80,8 +81,12 @@ public:
 	void mostraListaAdj();
 	void mostraGrau();
 	void mostraGrauTotal();
+	
+	// Apresenta lista de vértices.
+	void listaVertices();
 
-	void construirMatAdj();
+	// Apresenta lista de arestas.
+	void listaArestas();
 
 	// Atualiza num_vertices
 	void atualizaNumVertices();
@@ -183,8 +188,6 @@ public:
 	bool fleury(uint v_davez_id, uint v_inicial_id);
 
 	// DEGUB:
-	void listaVertices();
-	void listaArestas();
 	void listaArestasDeVertice(uint v_id);
 };
 
