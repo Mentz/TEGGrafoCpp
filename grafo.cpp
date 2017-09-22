@@ -197,22 +197,37 @@ void Grafo::mostraMatAdj(bool complemento) {
 
 /*--------------------------------------*/
 void Grafo::mostraMatInc() {
-	/*
-	map<string, vector<int> > :: iterator it = this->matrizInc.begin();
-	int maxS = -1;
+	puts("Matriz de incidência:");
+	int maxASize = 4;
+	int conta;
 
-	for(; it != this->matrizInc.end(); it++) {
-		maxS = MAX(maxS, (int) it->first.size());
-	}
-	
-	for(it = this->matrizInc.begin(); it != this -> matrizInc.end(); it++){
-		cout << setw(maxS) << it -> first;
-		for(int i = 0; i < (int) it->second.size(); i++){
-			cout << setw(3) << (it -> second)[i];
+	cout << setw(maxASize) << "";
+	for (uint i = 0; i < num_vertices; i++)
+		cout << setw(vertices[i].nome.size() + 2) << vertices[i].nome; 
+
+	cout << endl;
+
+	for (uint i = 0; i < num_arestas; i++)
+	{
+		cout << setw(maxASize) << arestas[i].nome;
+		for (uint j = 0; j < num_vertices; j++)
+		{
+			conta = 0;
+			if (arestas[i].v1 == vertices[j].id)
+				if (arestas[i].v2 == vertices[j].id)
+					conta = 2;
+				else
+					conta = (tipo) ? 1 : -1;
+			else if (arestas[i].v2 == vertices[j].id)
+				conta = 1;
+
+			if (conta)
+				cout << setw(vertices[i].nome.size() + 2) << conta;
+			else
+				cout << setw(vertices[i].nome.size() + 2) << "";
 		}
-		cout << endl;
+		cout << "\n";
 	}
-	*/
 }
 
 /*--------------------------------------*/
