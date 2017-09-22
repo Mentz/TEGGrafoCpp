@@ -200,10 +200,14 @@ void Grafo::mostraMatInc() {
 	puts("Matriz de incidência:");
 	int maxASize = 4;
 	int conta;
+	int colSize[num_vertices];
 
 	cout << setw(maxASize) << "";
 	for (uint i = 0; i < num_vertices; i++)
-		cout << setw(vertices[i].nome.size() + 2) << vertices[i].nome; 
+	{
+		colSize[i] = vertices[i].nome.size() + 2;
+		cout << setw(colSize[i]) << vertices[i].nome; 
+	}
 
 	cout << endl;
 
@@ -221,10 +225,7 @@ void Grafo::mostraMatInc() {
 			else if (arestas[i].v2 == vertices[j].id)
 				conta = 1;
 
-			if (conta)
-				cout << setw(vertices[i].nome.size() + 2) << conta;
-			else
-				cout << setw(vertices[i].nome.size() + 2) << "";
+			if (conta) printf("%*d", colSize[j], conta); else printf("%*s", colSize[j], "");
 		}
 		cout << "\n";
 	}
@@ -337,6 +338,8 @@ void Grafo::remVertice()
 	puts("\nDigite o ID do vértice que deseja remover ou digite '0' para cancelar.");
 	uint v_id;
 	scanf("%u", &v_id);
+	if (v_id == 0)
+		return;
 	remVertice(v_id);					// Chama o método que faz a remoção.
 }
 
@@ -754,8 +757,10 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 			printf("%s", vertices[getIndexV(v_id_davez)].nome.data());
 			return true; // Todas as arestas foram percorridas, é ciclo Euleriano.
 		}
-		else
-			return false; // Nem todas as arestas foram percorridas, continue.
+
+		// Nem todas as arestas foram percorridas, continue.
+		// pois pode haver uma aresta laço no nó atual, e
+		// ainda será Euleriano.
 	} 
 	else if (v_id_davez == 0)
 	{
