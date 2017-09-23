@@ -221,11 +221,11 @@ void Grafo::mostraMatInc() {
 				if (arestas[i].v2 == vertices[j].id)
 					conta = 2;
 				else
-					conta = (tipo) ? 1 : -1;
+					conta = (tipo) ? -1 : 1;
 			else if (arestas[i].v2 == vertices[j].id)
 				conta = 1;
 
-			if (conta) printf("%*d", colSize[j], conta); else printf("%*s", colSize[j], "");
+			if (conta) printf("%*d", colSize[j], conta); else printf("%*s", colSize[j], "-");
 		}
 		cout << "\n";
 	}
@@ -271,9 +271,10 @@ void Grafo::mostraGrauTotal()
 /*-----------------------------------*/
 void Grafo::listaVertices()
 {
+	int maxColSize = (int) round(log10(num_vertices)) + 1;
 	printf("Vértices = %u\n", num_vertices);
 	for (uint i = 0; i < vertices.size(); i++)
-		printf("ID: %3u | Nome: %s\n", vertices[i].id, vertices[i].nome.data());
+		printf("ID: %*u | Nome: %s\n", maxColSize, vertices[i].id, vertices[i].nome.data());
 	
 	puts("");
 }
@@ -281,11 +282,12 @@ void Grafo::listaVertices()
 /*-----------------------------------*/
 void Grafo::listaArestas()
 {
+	int maxColSize = (int) round(log10(num_arestas)) + 1;
 	printf("Arestas = %u\n", num_arestas);
 	for (uint i = 0; i < num_arestas; i++)
-		printf("ID: %3u | Nome: %s | Vértices: %s %s-> %s | Marcado: %s\n",
-				arestas[i].id, arestas[i].nome.data(), getNomeV(arestas[i].v1).data(),
-				(tipo) ? "":"<", getNomeV(arestas[i].v2).data(),
+		printf("ID: %*u | Nome: %*s | Vértices: %s %s-> %s | Marcado: %s\n",
+				maxColSize, arestas[i].id, maxColSize+1, arestas[i].nome.data(),
+				getNomeV(arestas[i].v1).data(), (tipo) ? "":"<", getNomeV(arestas[i].v2).data(),
 				getMarcadoAresta(arestas[i].id) ? "Sim":"Não");
 
 	puts("");
