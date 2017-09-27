@@ -161,38 +161,7 @@ void Grafo::mostraComplMatAdj() {
 
 /*--------------------------------------*/
 void Grafo::mostraMatAdj(bool complemento) {
-	/*
-	map<string, map<string, int> > :: iterator it;
-	int maxS = -1, compNo[this->matrizAdj.size()], i, j;
-	
-	for(i = 0, it = this->matrizAdj.begin(); it != this->matrizAdj.end(); i++, it++) {
-		compNo[i] = it->first.size();
-		maxS = MAX(maxS, compNo[i]);
-	}
-	
-	cout << setw(maxS) << "";
-
-	for(i = 0, it = this->matrizAdj.begin(); it != this->matrizAdj.end(); i++, it++)
-		cout << setw(compNo[i] + 2) << it -> first;
-
-	cout << endl;
-
-	for(i = 0, it = this->matrizAdj.begin(); it != this->matrizAdj.end(); i++, it++) {
-		cout << setw(maxS) << it -> first;
-		map<string, int>:: iterator it2;
-		for(j = 0, it2 = this->matrizAdj[it->first].begin();
-			it2 != this->matrizAdj[it->first].end(); j++, it2++)
-		{
-			if(!complemento)
-				cout << setw(compNo[j] + 2) << it2 -> second;
-			else {
-				int print = (it2->second == 0) ? 1 : 0;
-				cout << setw(compNo[j] + 2) << print;
-			}
-		}
-		cout << endl;	
-	}
-	*/
+	puts("Não implementado\n");
 }
 
 /*--------------------------------------*/
@@ -720,7 +689,7 @@ void Grafo::desmarcaAresta(uint a_id)
 /*--------------------------------------*/
 void Grafo::rodaFleury()
 {
-	if (num_vertices <= 1)					// Essa condição é para impedir que grafos
+	if (num_vertices < 1)					// Essa condição é para impedir que grafos
 	{										// sem vértices causem erros de segmentação
 		puts("Grafo não é Euleriano.");		// ao tentar acessar vertices[0].
 	}
@@ -779,18 +748,22 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 		else
 		{
 			marcaAresta(a_davez);
-			v_id_prox = percorreAresta(a_davez, v_id_davez);
+			if (v_id_prox = percorreAresta(a_davez, v_id_davez) == 0)
+			{
+				desmarcaAresta(a_davez);
+				continue;
+			}
 			if (fleury(v_id_prox, v_id_inicial) == true) // Deu certo, imprima o caminho.
 			{
 				printf("-%s-%s", arestas[getIndexA(a_davez)].nome.data(),
 								 vertices[getIndexV(v_id_davez)].nome.data()); 
-				return 1;
+				return true;
 			}
 			desmarcaAresta(a_davez);
 		}
 	}
 
-	return 0;
+	return false;
 }
 
 /*-----------------------------------*/
