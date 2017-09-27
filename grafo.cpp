@@ -748,7 +748,8 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 		else
 		{
 			marcaAresta(a_davez);
-			if (v_id_prox = percorreAresta(a_davez, v_id_davez) == 0)
+			v_id_prox = percorreAresta(a_davez, v_id_davez);
+			if (v_id_prox == 0)
 			{
 				desmarcaAresta(a_davez);
 				continue;
