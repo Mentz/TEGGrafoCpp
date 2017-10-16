@@ -40,6 +40,7 @@ int menu(Grafo *g)
 	puts(" 14. Verificar se grafo é conexo");
 	puts(" 15. Verificar se grafo é Euleriano");
 	puts(" 16. Colorir o grafo");
+	puts(" 17. Passar DFS no grafo");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -112,6 +113,10 @@ int menu(Grafo *g)
 
 		case 16:
 			g->colorir(true);
+			break;
+
+		case 17:
+			g->runDFS();
 			break;
 
 		default:
@@ -671,6 +676,13 @@ uint Grafo::percorreAresta(uint a_id, uint v_id)
 	}
 }
 
+/*-*/
+void Grafo::runDFS() {
+	Grafo arvoreDfs;
+	arvoreDfs.tipo = 1;
+	DFS(vertices[0].id, -1, arvoreDfs);
+}
+
 /*--------------------------------------*/
 void Grafo::DFS(uint v_davez) {
 	marcaVertice(v_davez);
@@ -683,6 +695,30 @@ void Grafo::DFS(uint v_davez) {
 		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
 			continue;
 		DFS(v_proximo);
+	}
+}
+
+/*--------------------------------------*/
+void Grafo::DFS(uint v_davez, int v_anterior, Grafo &arv) {
+	marcaVertice(v_davez);
+	int v_index = getIndexV(v_davez);
+	uint a_davez;
+	uint v_proximo;
+
+	arv.addVertice(vertices[v_index].nome);
+	if(v_anterior == -1) {
+		//"continue"
+	} else {
+		uint v_a_index = getIndexV(v_anterior);
+		arv.addAresta(vertices[v_a_index].nome, vertices[v_index].nome);
+	}
+
+	for (uint i = 0; i < vertices[v_index].arestas.size(); i++) {
+		a_davez = vertices[v_index].arestas[i];
+		v_proximo = percorreAresta(a_davez, v_davez);
+		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
+			continue;
+		DFS(v_proximo, v_index, arv);
 	}
 }
 

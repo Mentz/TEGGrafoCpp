@@ -167,6 +167,8 @@ public:
 
 	// DFS. Apenas marca os vértices onde passa.
 	void DFS(uint v_davez);
+	void DFS(uint v_davez, int v_anterior, Grafo &arv);
+	void runDFS();
 
 	void mostraComplMatAdj();
 
