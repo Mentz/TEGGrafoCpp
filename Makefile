@@ -2,7 +2,7 @@ FILES=main.cpp grafo.cpp
 OUT=grafo
 CC=g++
 WARN=-Wall
-FLAGS=-fmax-errors=3 -lm
+FLAGS=-fmax-errors=3 -std=c++14 -lm
 
 all: GRAFOS
 
