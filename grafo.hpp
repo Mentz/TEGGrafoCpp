@@ -41,18 +41,14 @@ struct GAresta {
 	string nome;
 	uint id;
 	uint v1, v2; // Guarda identificador (v_id) dos vértices nas pontas dessa aresta.
+	int peso;
 	bool marcado;
 
-	GAresta(uint v1_id, uint v2_id, uint a_id)
-	{
-		ostringstream oss;
-		oss << "u" << ((int) a_id);
-		this->nome		= oss.str();
-		this->id 		= a_id;
-		this->v1 		= v1_id;
-		this->v2	 	= v2_id;
-		this->marcado	= false;
-	}
+	// Construtor
+	GAresta(uint v1_id, uint v2_id, uint a_id);
+
+	void setPeso(int p);
+	int getPeso();
 };
 
 class Grafo {
@@ -84,10 +80,10 @@ public:
 	void mostraGrauTotal();
 	
 	// Apresenta lista de vértices.
-	void listaVertices();
+	void listaVertices(bool marcado, bool grau, bool cor);
 
 	// Apresenta lista de arestas.
-	void listaArestas();
+	void listaArestas(bool marcado);
 
 	// Atualiza num_vertices
 	void atualizaNumVertices();
@@ -168,7 +164,9 @@ public:
 	uint percorreAresta(uint a_id, uint v_id);
 
 	void verificaConexo();
-	void DFS(string u, int grupo, map<string, int> &grupoVertices);
+
+	// DFS. Apenas marca os vértices onde passa.
+	void DFS(uint v_davez);
 
 	void mostraComplMatAdj();
 
@@ -187,6 +185,9 @@ public:
 	// Verifica se o grafo é Euleriano
 	void rodaFleury();
 	bool fleury(uint v_davez_id, uint v_inicial_id);
+
+	// Colore o grafo e opcionalmente mostra a coloração dos vértices
+	int colorir(bool imprime);
 
 	// DEGUB:
 	void listaArestasDeVertice(uint v_id);

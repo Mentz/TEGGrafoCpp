@@ -39,6 +39,7 @@ int menu(Grafo *g)
 	puts(" 13. Remover aresta");
 	puts(" 14. Verificar se grafo é conexo");
 	puts(" 15. Verificar se grafo é Euleriano");
+	puts(" 16. Colorir o grafo");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -82,7 +83,7 @@ int menu(Grafo *g)
 			break;
 		
 		case 9:
-			g->listaVertices();
+			g->listaVertices(false, false, false);
 			break;
 
 		case 10:
@@ -94,7 +95,7 @@ int menu(Grafo *g)
 			break;
 
 		case 12:
-			g->listaArestas();
+			g->listaArestas(false);
 			break;
 
 		case 13:
@@ -107,6 +108,10 @@ int menu(Grafo *g)
 
 		case 15:
 			g->rodaFleury();
+			break;
+
+		case 16:
+			g->colorir(true);
 			break;
 
 		default:
@@ -123,7 +128,36 @@ int menu(Grafo *g)
 	return operacao;
 }
 
+/*======================================**
+			class GAresta
+**======================================*/
+GAresta::GAresta(uint v1_id, uint v2_id, uint a_id)
+{
+	ostringstream oss;
+	oss << "u" << ((int) a_id);
+	this->nome		= oss.str();
+	this->id 		= a_id;
+	this->v1 		= v1_id;
+	this->v2	 	= v2_id;
+	this->peso		= 1;
+	this->marcado	= false;
+}
+
 /*--------------------------------------*/
+void GAresta::setPeso(int p)
+{
+	this->peso = p;
+}
+
+/*--------------------------------------*/
+int GAresta::getPeso()
+{
+	return this->peso;
+}
+
+/*======================================**
+**			class Grafo					**
+**======================================*/
 void Grafo::leGrafo()
 {
 	string caminho;
@@ -156,12 +190,42 @@ void Grafo::leGrafo()
 
 /*--------------------------------------*/
 void Grafo::mostraComplMatAdj() {
-	// A implementar
+	mostraMatAdj(true);
 }
 
 /*--------------------------------------*/
 void Grafo::mostraMatAdj(bool complemento) {
-	puts("Não implementado\n");
+	if (complemento)
+		puts("Matriz de adjacência complementar:");
+	else
+		puts("Matriz de adjacência:");
+	
+	vector<vector<int> > adj(num_vertices, vector<int>(num_vertices, 0));
+	uint v1_index, v2_index, maxNameSize = 0;
+	for (uint i = 0; i < num_arestas; i++)
+	{
+		v1_index = getIndexV(arestas[i].v1);
+		v2_index = getIndexV(arestas[i].v2);
+		maxNameSize = MAX(MAX(vertices[v1_index].nome.size(), vertices[v2_index].nome.size()), maxNameSize); 
+		adj[v1_index][v2_index]++;
+		if (tipo == NAODIRECIONADO && v1_index != v2_index)
+			adj[v2_index][v1_index]++;
+	}
+
+	cout << setw(maxNameSize) << "";
+	for (uint i = 0; i < num_vertices; i++)
+		cout << setw(vertices[i].nome.size() + 2) << vertices[i].nome;
+
+	cout << endl;
+
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		cout << setw(maxNameSize) << vertices[i].nome;
+		for (uint j = 0; j < num_vertices; j++)
+			cout << setw(vertices[j].nome.size() + 2) << ((complemento) ? !adj[i][j]:adj[i][j]);
+
+		cout << endl;
+	}
 }
 
 /*--------------------------------------*/
@@ -238,26 +302,38 @@ void Grafo::mostraGrauTotal()
 }
 
 /*-----------------------------------*/
-void Grafo::listaVertices()
+void Grafo::listaVertices(bool marcado, bool grau, bool cor)
 {
 	int maxColSize = (int) round(log10(num_vertices)) + 1;
 	printf("Vértices = %u\n", num_vertices);
 	for (uint i = 0; i < vertices.size(); i++)
-		printf("ID: %*u | Nome: %s\n", maxColSize, vertices[i].id, vertices[i].nome.data());
+	{
+		printf("ID: %*u | Nome: %s", maxColSize, vertices[i].id, vertices[i].nome.data());
+		if (grau)
+			printf(" | Grau: %*d", maxColSize, vertices[i].grau);
+		if (cor)
+			printf(" | Cor: %*d", maxColSize, vertices[i].cor);
+		if (marcado)
+			printf(" | Marcado: %s", getMarcadoVertice(vertices[i].id) ? "Sim":"Não");
+		printf("\n");
+	}
 	
 	puts("");
 }
 
 /*-----------------------------------*/
-void Grafo::listaArestas()
+void Grafo::listaArestas(bool marcado)
 {
 	int maxColSize = (int) round(log10(num_arestas)) + 1;
 	printf("Arestas = %u\n", num_arestas);
 	for (uint i = 0; i < num_arestas; i++)
-		printf("ID: %*u | Nome: %*s | Vértices: %s %s-> %s | Marcado: %s\n",
+	{
+		printf("ID: %*u | Nome: %*s | Vértices: %s %s-> %s",
 				maxColSize, arestas[i].id, maxColSize+1, arestas[i].nome.data(),
-				getNomeV(arestas[i].v1).data(), (tipo) ? "":"<", getNomeV(arestas[i].v2).data(),
-				getMarcadoAresta(arestas[i].id) ? "Sim":"Não");
+				getNomeV(arestas[i].v1).data(), (tipo) ? "":"<", getNomeV(arestas[i].v2).data());
+		if (marcado) printf(" | Marcado: %s", getMarcadoAresta(arestas[i].id) ? "Sim":"Não");
+		printf("\n");
+	}
 
 	puts("");
 }
@@ -596,48 +672,45 @@ uint Grafo::percorreAresta(uint a_id, uint v_id)
 }
 
 /*--------------------------------------*/
-void Grafo::DFS(string u, int grupo, map<string, int> &grupoVertices) {
-	/*
-	grupoVertices[u] = grupo;
-	for(int i = 0; i < (int) this->listaAdj[u].size(); i++) {
-		string atual = this->listaAdj[u][i];
-		if(grupoVertices[atual] == -1) {
-			DFS(atual, grupo, grupoVertices);
-		}
+void Grafo::DFS(uint v_davez) {
+	marcaVertice(v_davez);
+	int v_index = getIndexV(v_davez);
+	uint a_davez;
+	uint v_proximo;
+	for (uint i = 0; i < vertices[v_index].arestas.size(); i++) {
+		a_davez = vertices[v_index].arestas[i];
+		v_proximo = percorreAresta(a_davez, v_davez);
+		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
+			continue;
+		DFS(v_proximo);
 	}
-	*/
-}   
+}
 
 /*--------------------------------------*/
 void Grafo::verificaConexo() {
-	/*
-	map<string, int> grupoVertices;
-	map<string, int> :: iterator it;
+	puts("Grafo é conexo?");
+	bool conexo = true;
 
-	for(int i = 0; i < (int) vertices.size(); i++) { 
-		grupoVertices[vertices[i].nome] = -1;
-	}
-	
-	int grupo = 0;
-	for(it = grupoVertices.begin(); it != grupoVertices.end(); it++) {
-		string atual = it->first;
-		int grupoAtual = it->second;
-		
-		if(grupoAtual == -1) {
-			this->DFS(atual, grupo, grupoVertices);
-			grupo++;
+	if (num_vertices != 0)
+	{
+		DFS(vertices[0].id);
+		for (uint i = 0; i < num_vertices; i++)
+		{
+			if (getMarcadoVertice(vertices[i].id) == 0)
+			{
+				conexo = false;
+				break;
+			}
 		}
 	}
 
-	for(it = grupoVertices.begin(); it != grupoVertices.end(); it++) {
-		cout << it -> first << " " << it -> second << endl;
-	}
-
-	if(grupo <= 1)
-		cout << "O grafo é conexo" << endl;
+	if (conexo)
+		puts("SIM. O grafo é conexo");
 	else
-		cout << "O grafo é desconexo e possui " << grupo << " subgrafos" << endl; 
-	*/
+		puts("NÃO. O grafo é desconexo");
+
+	for (uint i = 0; i < num_vertices; i++)
+		desmarcaVertice(vertices[i].id);
 }
 
 /*--------------------------------------*/
@@ -767,7 +840,43 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 	return false;
 }
 
-/*-----------------------------------*/
+/*--------------------------------------*/
+int Grafo::colorir(bool imprime)
+{
+	puts("Coloração:");
+	uint a_davez;
+	int v_vizinho, maxCor = 0;
+
+	vector<bool> vcores(num_vertices + 1); // Cores dos vizinhos.
+
+	// Reiniciar coloraçao do grafo
+	for (uint i = 0; i < num_vertices; i++)
+		vertices[i].cor = 0; // Não colorido
+
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		// Reinicia o vetor de cores de vizinhos.
+		for (uint j = 0; j < num_vertices; j++) vcores[j] = false;
+
+		// Encontra as cores dos vizinhos e marca elas.
+		for (uint j = 0; j < vertices[i].arestas.size(); j++)
+		{
+			a_davez = vertices[i].arestas[j];
+			v_vizinho = getIndexV(percorreAresta(a_davez, vertices[i].id));
+			vcores[vertices[v_vizinho].cor] = true;
+		}
+
+		// Pinta com a primeira cor disponível.
+		for (uint j = 1; j <= num_vertices; j++) 
+			if (vcores[j] == false) { vertices[i].cor = j; maxCor = MAX(maxCor, (int) j); break; }
+	}
+
+	if (imprime) this->listaVertices(false, false, true);
+
+	return maxCor;
+}
+
+/*--------------------------------------*/
 void Grafo::listaArestasDeVertice(uint v_id)
 {
 	for (uint i = 0; i < vertices[getIndexV(v_id)].arestas.size(); i++)
