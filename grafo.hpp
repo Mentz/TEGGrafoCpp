@@ -78,7 +78,7 @@ public:
 	void mostraListaAdj();
 	void mostraGrau();
 	void mostraGrauTotal();
-	
+
 	// Apresenta lista de vértices.
 	void listaVertices(bool marcado, bool grau, bool cor);
 
@@ -167,7 +167,7 @@ public:
 
 	// DFS. Apenas marca os vértices onde passa.
 	void DFS(uint v_davez);
-	void DFS(uint v_davez, int v_anterior, Grafo &arv);
+	void DFS(uint v_id_davez, uint v_id_anterior, Grafo &arv);
 	void runDFS();
 
 	void mostraComplMatAdj();

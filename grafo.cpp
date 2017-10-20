@@ -19,7 +19,7 @@ using namespace std;
 int menu(Grafo *g)
 {
 	int operacao = -1;
-	
+
 	puts("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");;
 	puts("/*------------------------------------*/");
 	puts("Menu:");
@@ -45,44 +45,44 @@ int menu(Grafo *g)
 
 	scanf("%d", &operacao);
 	//system("clear");
-	
+
 	switch(operacao)
 	{
 		case 0:
 			break;
-		
+
 		case 1:
 			g->leGrafo();
 			break;
-		
+
 		case 2:
 			g->mostraMatAdj(false);
 			break;
-		
+
 		case 3:
 			g->mostraMatInc();
 			break;
-		
+
 		case 4:
 			g->mostraListaAdj();
 			break;
-		
+
 		case 5:
 			g->mostraGrau();
 			break;
-		
+
 		case 6:
 			g->mostraGrauTotal();
 			break;
-		
+
 		case 7:
 			g->mostraMatAdj(true);
 			break;
-		
+
 		case 8:
 			g->addVertice();
 			break;
-		
+
 		case 9:
 			g->listaVertices(false, false, false);
 			break;
@@ -90,7 +90,7 @@ int menu(Grafo *g)
 		case 10:
 			g->remVertice();
 			break;
-		
+
 		case 11:
 			g->addAresta();
 			break;
@@ -123,7 +123,7 @@ int menu(Grafo *g)
 			operacao = -1;
 			break;
 	}
-	
+
 	if (operacao != 0)
 	{
 		puts("Pressione 'Enter' para continuar.");
@@ -172,7 +172,7 @@ void Grafo::leGrafo()
 	file.open(caminho);
 
 	int nn, na, tipo;
-	
+
 	file >> nn >> na >> tipo;
 	this->tipo = tipo;
 
@@ -182,7 +182,7 @@ void Grafo::leGrafo()
 		file >> v;
 		addVertice(v);
 	}
-	
+
 	for (int i = 0; i < na; i++)
 	{
 		string vAux1, vAux2;
@@ -204,14 +204,14 @@ void Grafo::mostraMatAdj(bool complemento) {
 		puts("Matriz de adjacência complementar:");
 	else
 		puts("Matriz de adjacência:");
-	
+
 	vector<vector<int> > adj(num_vertices, vector<int>(num_vertices, 0));
 	uint v1_index, v2_index, maxNameSize = 0;
 	for (uint i = 0; i < num_arestas; i++)
 	{
 		v1_index = getIndexV(arestas[i].v1);
 		v2_index = getIndexV(arestas[i].v2);
-		maxNameSize = MAX(MAX(vertices[v1_index].nome.size(), vertices[v2_index].nome.size()), maxNameSize); 
+		maxNameSize = MAX(MAX(vertices[v1_index].nome.size(), vertices[v2_index].nome.size()), maxNameSize);
 		adj[v1_index][v2_index]++;
 		if (tipo == NAODIRECIONADO && v1_index != v2_index)
 			adj[v2_index][v1_index]++;
@@ -244,7 +244,7 @@ void Grafo::mostraMatInc() {
 	for (uint i = 0; i < num_vertices; i++)
 	{
 		colSize[i] = vertices[i].nome.size() + 2;
-		cout << setw(colSize[i]) << vertices[i].nome; 
+		cout << setw(colSize[i]) << vertices[i].nome;
 	}
 
 	cout << endl;
@@ -286,7 +286,7 @@ void Grafo::mostraListaAdj() {
 /*--------------------------------------*/
 // Apresenta o grau de todos os nós do grafo de forma bonita.
 void Grafo::mostraGrau() {
-	for(uint i = 0; i < num_vertices; i++) 
+	for(uint i = 0; i < num_vertices; i++)
 	{
 		printf("d(%s) = %d\n", vertices[i].nome.data(), vertices[i].grau);
 	}
@@ -302,7 +302,7 @@ void Grafo::mostraGrauTotal()
 		maxi = MAX(maxi, vertices[i].grau);
 		total += vertices[i].grau;
 	}
-	
+
 	printf("Grau mínimo = %d\nGrau máximo = %d\nGrau total  = %d\n", mini, maxi, total);
 }
 
@@ -322,7 +322,7 @@ void Grafo::listaVertices(bool marcado, bool grau, bool cor)
 			printf(" | Marcado: %s", getMarcadoVertice(vertices[i].id) ? "Sim":"Não");
 		printf("\n");
 	}
-	
+
 	puts("");
 }
 
@@ -373,7 +373,7 @@ void Grafo::addVertice(string nome)
 		puts("Já existe um vértice com esse nome, vértice não adicionado.");
 		return;
 	}
-	
+
 	GVertice nv(nome, ++v_id_c);	// Criar item GVertice para inclusão.
 	vertices.push_back(nv);			// Incluir vértice na lista de vértices.
 
@@ -401,7 +401,7 @@ void Grafo::remVertice(string v)
 	int index = getIndexV(v);
 	if (index == -1)
 		return;
-	
+
 	remVertice(vertices[index].id);		// Chama o método que faz a remoção.
 }
 
@@ -416,7 +416,7 @@ void Grafo::remVertice(uint v_id)
 		puts("Não há vértice com esse identificador.");
 		return;
 	}
-	
+
 	for (int i = vertices[index].arestas.size() - 1; i >= 0; i--)
 	{
 		//printf("entrei na lista de arestas, i = %u, vert[].arestas.size() = %lu\n", i, vertices[index].arestas.size());
@@ -449,7 +449,7 @@ void Grafo::addAresta()
 	scanf("%u", &v2_id);
 	if (v2_id == 0)
 		return;
-	
+
 	addAresta(v1_id, v2_id);
 }
 
@@ -474,13 +474,13 @@ void Grafo::addAresta(uint v1_id, uint v2_id)
 	//printf("Aresta nova:  %u - %u\n", v1_id, v2_id);
 	int v1_index = getIndexV(v1_id), v2_index = getIndexV(v2_id);
 	//printf("Indices nova: %d - %d\n", v1_index, v2_index);
-	
+
 	if (v1_index == -1 || v2_index == -1)
 	{
 		puts("Um dos vértices não existe.");
 		return;
 	}
-	
+
 	GAresta na(vertices[v1_index].id, vertices[v2_index].id, ++a_id_c);
 
 	//printf("na.nome = %s\tna.id = %u\n", na.nome.data(), na.id);
@@ -491,7 +491,7 @@ void Grafo::addAresta(uint v1_id, uint v2_id)
 
 	arestas.push_back(na);
 	atualizaNumArestas();
-	
+
 	atualizaGrauV(v1_id);
 	atualizaGrauV(v2_id);
 }
@@ -505,7 +505,7 @@ void Grafo::remAresta()
 		printf("id: %3u | nome: %s | vértices: %s %s-> %s\n",
 				arestas[i].id, arestas[i].nome.data(), getNomeV(arestas[i].v1).data(),
 				(tipo) ? "":"<", getNomeV(arestas[i].v2).data());
-	
+
 	puts("");
 	puts("Digite o ID da aresta a remover ou digite '0' para cancelar.");
 	scanf("%u", &a_id);
@@ -560,7 +560,7 @@ void Grafo::remAresta(uint a_id)
 	// Remove da lista de arestas.
 	arestas.erase(arestas.begin() + a_index);
 	//printf("arestas.size() = %lu\n", arestas.size());
-	
+
 	//puts("atualizaNumArestas()");
 	//printf("num_arestas = %u\n", num_arestas);
 	atualizaNumArestas();
@@ -679,8 +679,13 @@ uint Grafo::percorreAresta(uint a_id, uint v_id)
 /*-*/
 void Grafo::runDFS() {
 	Grafo arvoreDfs;
-	arvoreDfs.tipo = 1;
-	DFS(vertices[0].id, -1, arvoreDfs);
+	arvoreDfs.tipo = 1; // DIRECIONADO
+	for (uint i = 0; i < num_vertices; i++)
+		arvoreDfs.addVertice(vertices[i].nome);
+
+	DFS(vertices[0].id, 0, arvoreDfs);
+
+	arvoreDfs.mostraListaAdj();
 }
 
 /*--------------------------------------*/
@@ -699,26 +704,25 @@ void Grafo::DFS(uint v_davez) {
 }
 
 /*--------------------------------------*/
-void Grafo::DFS(uint v_davez, int v_anterior, Grafo &arv) {
-	marcaVertice(v_davez);
-	int v_index = getIndexV(v_davez);
+void Grafo::DFS(uint v_id_davez, uint v_id_anterior, Grafo &arv) {
+	marcaVertice(v_id_davez);
+	int v_index_davez = getIndexV(v_id_davez);
 	uint a_davez;
 	uint v_proximo;
 
-	arv.addVertice(vertices[v_index].nome);
-	if(v_anterior == -1) {
-		//"continue"
+	if(v_id_anterior == 0) {
+		// continue
 	} else {
-		uint v_a_index = getIndexV(v_anterior);
-		arv.addAresta(vertices[v_a_index].nome, vertices[v_index].nome);
+		uint v_index_anterior = getIndexV(v_id_anterior);
+		arv.addAresta(vertices[v_index_anterior].nome, vertices[v_index_davez].nome);
 	}
 
-	for (uint i = 0; i < vertices[v_index].arestas.size(); i++) {
-		a_davez = vertices[v_index].arestas[i];
-		v_proximo = percorreAresta(a_davez, v_davez);
+	for (uint i = 0; i < vertices[v_index_davez].arestas.size(); i++) {
+		a_davez = vertices[v_index_davez].arestas[i];
+		v_proximo = percorreAresta(a_davez, v_id_davez);
 		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
 			continue;
-		DFS(v_proximo, v_index, arv);
+		DFS(v_proximo, v_index_davez, arv);
 	}
 }
 
@@ -841,7 +845,7 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 		// Nem todas as arestas foram percorridas, continue.
 		// pois pode haver uma aresta laço no nó atual, e
 		// ainda será Euleriano.
-	} 
+	}
 	else if (v_id_davez == 0)
 	{
 		v_id_davez = v_id_inicial;
@@ -866,7 +870,7 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 			if (fleury(v_id_prox, v_id_inicial) == true) // Deu certo, imprima o caminho.
 			{
 				printf("-%s-%s", arestas[getIndexA(a_davez)].nome.data(),
-								 vertices[getIndexV(v_id_davez)].nome.data()); 
+								 vertices[getIndexV(v_id_davez)].nome.data());
 				return true;
 			}
 			desmarcaAresta(a_davez);
@@ -903,7 +907,7 @@ int Grafo::colorir(bool imprime)
 		}
 
 		// Pinta com a primeira cor disponível.
-		for (uint j = 1; j <= num_vertices; j++) 
+		for (uint j = 1; j <= num_vertices; j++)
 			if (vcores[j] == false) { vertices[i].cor = j; maxCor = MAX(maxCor, (int) j); break; }
 	}
 
