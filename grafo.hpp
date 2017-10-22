@@ -24,6 +24,7 @@ struct GVertice {
 	int cor; // Não implementado.
 	uint grau;
 	bool marcado;
+	vector<uint> antecessores, filhos, sucessores; // Auto-explanatório.
 	vector<uint> arestas; // Guarda identificador (a_id) das arestas que tocam esse vértice.
 
 	GVertice(string nome, uint v_id)
@@ -57,8 +58,6 @@ private:
 	uint num_arestas, a_id_c; // a_id_c é o identificador único incremental para cada GAresta.
 	vector<GVertice> vertices;
 	vector<GAresta> arestas;
-
-	//map<string, int> grauVertice;
 
 	int tipo; // 0 para não-direcionado, 1 para direcionado.
 

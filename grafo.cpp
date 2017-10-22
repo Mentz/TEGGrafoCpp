@@ -40,7 +40,8 @@ int menu(Grafo *g)
 	puts(" 14. Verificar se grafo é conexo");
 	puts(" 15. Verificar se grafo é Euleriano");
 	puts(" 16. Colorir o grafo");
-	puts(" 17. Passar DFS no grafo");
+	puts(" 17. Passar DFS no grafo (libera opção 18)");
+	puts(" 18. Apresentar dados sobre nó");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -276,8 +277,9 @@ void Grafo::mostraListaAdj() {
 		printf("%s:", vertices[i].nome.data());
 		for (uint j = 0; j < vertices[i].arestas.size(); j++)
 		{
-			printf("%s %s", j?",":"",
-					getNomeV(percorreAresta(vertices[i].arestas[j], vertices[i].id)).data());
+			uint dest = percorreAresta(vertices[i].arestas[j], vertices[i].id);
+			printf("%s %s", (j && dest)?",":"",
+					getNomeV(dest).data());
 		}
 		puts("");
 	}
@@ -374,7 +376,7 @@ void Grafo::addVertice(string nome)
 		return;
 	}
 
-	GVertice nv(nome, ++v_id_c);	// Criar item GVertice para inclusão.
+	GVertice nv(nome, ++v_id_c);	// Criar item GVertice para inclusão. Do 1 pra cima.
 	vertices.push_back(nv);			// Incluir vértice na lista de vértices.
 
 	atualizaNumVertices();
@@ -676,14 +678,19 @@ uint Grafo::percorreAresta(uint a_id, uint v_id)
 	}
 }
 
-/*-*/
+/*--------------------------------------*/
 void Grafo::runDFS() {
 	Grafo arvoreDfs;
 	arvoreDfs.tipo = 1; // DIRECIONADO
 	for (uint i = 0; i < num_vertices; i++)
 		arvoreDfs.addVertice(vertices[i].nome);
 
-	DFS(vertices[0].id, 0, arvoreDfs);
+	for (uint i = 0; i < num_vertices; i++)
+		if (!getMarcadoVertice(vertices[i].id))
+			DFS(vertices[0].id, 0, arvoreDfs);
+
+	for (uint i = 0; i < num_vertices; i++)
+		desmarcaVertice(vertices[i].id);
 
 	arvoreDfs.mostraListaAdj();
 }
@@ -704,25 +711,26 @@ void Grafo::DFS(uint v_davez) {
 }
 
 /*--------------------------------------*/
-void Grafo::DFS(uint v_id_davez, uint v_id_anterior, Grafo &arv) {
-	marcaVertice(v_id_davez);
-	int v_index_davez = getIndexV(v_id_davez);
+void Grafo::DFS(uint v_davez, uint v_anterior, Grafo &arv) {
+	marcaVertice(v_davez);
+	int v_index = getIndexV(v_davez);
 	uint a_davez;
 	uint v_proximo;
 
-	if(v_id_anterior == 0) {
+	if (v_anterior == 0) {
 		// continue
 	} else {
-		uint v_index_anterior = getIndexV(v_id_anterior);
-		arv.addAresta(vertices[v_index_anterior].nome, vertices[v_index_davez].nome);
+		uint v_index_anterior = getIndexV(v_anterior);
+		cout << vertices[v_index_anterior].nome << " - " << vertices[v_index].nome << endl;
+		arv.addAresta(vertices[v_index_anterior].nome, vertices[v_index].nome);
 	}
 
-	for (uint i = 0; i < vertices[v_index_davez].arestas.size(); i++) {
-		a_davez = vertices[v_index_davez].arestas[i];
-		v_proximo = percorreAresta(a_davez, v_id_davez);
+	for (uint i = 0; i < vertices[v_index].arestas.size(); i++) {
+		a_davez = vertices[v_index].arestas[i];
+		v_proximo = percorreAresta(a_davez, v_davez);
 		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
 			continue;
-		DFS(v_proximo, v_index_davez, arv);
+		DFS(v_proximo, v_davez, arv);
 	}
 }
 
@@ -912,6 +920,8 @@ int Grafo::colorir(bool imprime)
 	}
 
 	if (imprime) this->listaVertices(false, false, true);
+
+	if (imprime) cout << "Número cromático: " << maxCor << "\n";
 
 	return maxCor;
 }
