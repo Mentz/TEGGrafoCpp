@@ -24,7 +24,6 @@ struct GVertice {
 	int cor; // Não implementado.
 	uint grau;
 	bool marcado;
-	vector<uint> antecessores, filhos, sucessores; // Auto-explanatório.
 	vector<uint> arestas; // Guarda identificador (a_id) das arestas que tocam esse vértice.
 
 	GVertice(string nome, uint v_id)
@@ -166,8 +165,6 @@ public:
 
 	// DFS. Apenas marca os vértices onde passa.
 	void DFS(uint v_davez);
-	void DFS(uint v_id_davez, uint v_id_anterior, Grafo &arv);
-	void runDFS();
 
 	void mostraComplMatAdj();
 
@@ -192,6 +189,13 @@ public:
 
 	// DEGUB:
 	void listaArestasDeVertice(uint v_id);
+
+	void runDFS();
+	void DFS_DFS0(uint atual, uint anterior, vector<vector<uint> > &arvDfs, vector<vector<uint> > &rArvDfs, vector<bool> &visitado, vector<vector<uint> > &listaAdj);
+	void DFS_DFS1(uint atual, vector<uint> &parentes,  vector<vector<uint> > &lista, vector<bool> & visitado);
+	void DFS_getTopologico(uint atual, vector<vector<uint> > &listaAdj, vector<bool> &visitado, vector<uint> &vetTopologico);
+	void DFS_getInfoNo(uint v, vector<bool> &visitado, vector<vector<uint> > &listaAdj, vector<vector<uint> > &arvDfs, vector<vector<uint> > &rArvDfs);
+	void DFS_printArvoreDFS(vector<vector<uint> > &arvDfs);
 };
 
 int menu(Grafo* g);

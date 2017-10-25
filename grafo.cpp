@@ -40,8 +40,7 @@ int menu(Grafo *g)
 	puts(" 14. Verificar se grafo é conexo");
 	puts(" 15. Verificar se grafo é Euleriano");
 	puts(" 16. Colorir o grafo");
-	puts(" 17. Passar DFS no grafo (libera opção 18)");
-	puts(" 18. Apresentar dados sobre nó");
+	puts(" 17. Passar DFS no grafo");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -679,23 +678,6 @@ uint Grafo::percorreAresta(uint a_id, uint v_id)
 }
 
 /*--------------------------------------*/
-void Grafo::runDFS() {
-	Grafo arvoreDfs;
-	arvoreDfs.tipo = 1; // DIRECIONADO
-	for (uint i = 0; i < num_vertices; i++)
-		arvoreDfs.addVertice(vertices[i].nome);
-
-	for (uint i = 0; i < num_vertices; i++)
-		if (!getMarcadoVertice(vertices[i].id))
-			DFS(vertices[0].id, 0, arvoreDfs);
-
-	for (uint i = 0; i < num_vertices; i++)
-		desmarcaVertice(vertices[i].id);
-
-	arvoreDfs.mostraListaAdj();
-}
-
-/*--------------------------------------*/
 void Grafo::DFS(uint v_davez) {
 	marcaVertice(v_davez);
 	int v_index = getIndexV(v_davez);
@@ -707,30 +689,6 @@ void Grafo::DFS(uint v_davez) {
 		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
 			continue;
 		DFS(v_proximo);
-	}
-}
-
-/*--------------------------------------*/
-void Grafo::DFS(uint v_davez, uint v_anterior, Grafo &arv) {
-	marcaVertice(v_davez);
-	int v_index = getIndexV(v_davez);
-	uint a_davez;
-	uint v_proximo;
-
-	if (v_anterior == 0) {
-		// continue
-	} else {
-		uint v_index_anterior = getIndexV(v_anterior);
-		cout << vertices[v_index_anterior].nome << " - " << vertices[v_index].nome << endl;
-		arv.addAresta(vertices[v_index_anterior].nome, vertices[v_index].nome);
-	}
-
-	for (uint i = 0; i < vertices[v_index].arestas.size(); i++) {
-		a_davez = vertices[v_index].arestas[i];
-		v_proximo = percorreAresta(a_davez, v_davez);
-		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
-			continue;
-		DFS(v_proximo, v_davez, arv);
 	}
 }
 
@@ -935,3 +893,155 @@ void Grafo::listaArestasDeVertice(uint v_id)
 	}
 	puts("");
 }
+
+
+/*================BEGIN ================*/
+/*=== GRANDE BLOCÃO DE CÓDIGO DA DFS ===*/
+/*======================================*/
+void Grafo::runDFS() {
+	// Inicialização
+	vector<vector<uint> > listaAdj(num_vertices);
+	vector<vector<uint> > arvDfs(num_vertices);
+	vector<vector<uint> > rArvDfs(num_vertices);
+	vector<uint> vetTopologico;
+	vector<bool> visitado(num_vertices, false);
+	// Fim
+
+	// Criação da listaAdj (auxiliar)
+	for(uint i = 0; i < num_arestas; i++) {
+		uint v1_id = arestas[i].v1, v2_id = arestas[i].v2;
+		int v1_index = getIndexV(v1_id), v2_index = getIndexV(v2_id);
+		listaAdj[v1_index].push_back(v2_index);
+		if(this->tipo == 0)
+			listaAdj[v2_index].push_back(v1_index);
+	}
+	// Fim
+
+	// Calculando o vetor topológico do grafo dado
+	for(uint i = 0; i < num_vertices; i++) {
+		if(!visitado[i]) {
+			visitado[i] = true;
+			DFS_getTopologico(i, listaAdj, visitado, vetTopologico);
+		}
+	}
+	// Fim
+
+	// Inicializando a arvore e o vetor de visitados
+	visitado = vector<bool>(num_vertices, false);
+	// Fim
+
+	// Rodando DFS no ultimo elemento do vetor topológico
+	//DFS_DFS0(vetTopologico.back(), -1, arvDfs, rArvDfs, visitado, listaAdj);
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		if (!visitado[i])
+		{
+			DFS_DFS0(i, -1, arvDfs, rArvDfs, visitado, listaAdj);
+		}
+	}
+	// Fim
+
+
+	// Printando Árvore da DFS
+	cout << "Árvore gerada pela DFS: " << endl;
+	DFS_printArvoreDFS(arvDfs);
+	// Fim
+
+	// Fazendo análise dos nós
+	cout << "----------------------------------" << endl;
+	for(uint i = 0; i < num_vertices; i++) {
+		DFS_getInfoNo(i, visitado, listaAdj, arvDfs, rArvDfs);
+	}
+	// Fim
+}
+
+// DFS para encontrar a árvore da DFS
+void Grafo::DFS_DFS0(uint atual, uint anterior, vector<vector<uint> > &arvDfs, vector<vector<uint> > &rArvDfs, vector<bool> &visitado, vector<vector<uint> > &listaAdj) {
+    if(anterior != (uint) -1) {
+        arvDfs[anterior].push_back(atual);
+        rArvDfs[atual].push_back(anterior);
+    }
+
+    for(uint i = 0; i < listaAdj[atual].size(); i++) {
+        uint u = listaAdj[atual][i];
+        if(!visitado[u]) {
+            visitado[u] = true;
+            DFS_DFS0(u, atual, arvDfs, rArvDfs, visitado, listaAdj);
+        }
+    }
+}
+// Fim
+
+// DFS para encontrar os ancestrais e descendentes de um determinado nó
+void Grafo::DFS_DFS1(uint atual, vector<uint> &parentes,  vector<vector<uint> > &lista, vector<bool> &visitado) {
+
+    for(uint i = 0; i < lista[atual].size(); i++) {
+        uint u = lista[atual][i];
+        if(!visitado[u]) {
+            visitado[u] = true;
+			parentes.push_back(u);
+            DFS_DFS1(u, parentes, lista, visitado);
+        }
+    }
+}
+// Fim
+
+// DFS para encontrar o vetor topológico
+void Grafo::DFS_getTopologico(uint atual, vector<vector<uint> > &listaAdj, vector<bool> &visitado, vector<uint> &vetTopologico) {
+    for(uint i = 0; i < listaAdj[atual].size(); i++) {
+        uint u = listaAdj[atual][i];
+        if(!visitado[u]) {
+            visitado[u] = true;
+            DFS_getTopologico(u, listaAdj, visitado, vetTopologico);
+        }
+    }
+
+    vetTopologico.push_back(atual);
+}
+// Fim
+
+void Grafo::DFS_getInfoNo(uint v, vector<bool> &visitado, vector<vector<uint> > &listaAdj, vector<vector<uint> > &arvDfs, vector<vector<uint> > &rArvDfs) {
+    cout << "Analise do vertice " << vertices[v].nome << endl;
+    cout << "Filhos: ";
+    visitado = vector<bool> (num_vertices, false);
+
+    for(uint i = 0; i < listaAdj[v].size(); i++) {
+        uint u = listaAdj[v][i];
+        cout << vertices[u].nome << " ";
+        visitado[u] = true;
+    }
+    cout << endl;
+
+    vector<uint> ancestrais;
+    cout << "Ancestrais: ";
+    visitado = vector<bool> (num_vertices, false);
+    DFS_DFS1(v, ancestrais, rArvDfs, visitado);
+    for(uint i = 0; i < ancestrais.size(); i++) {
+        cout << vertices[ancestrais[i]].nome << " ";
+    }
+    cout << endl;
+
+    vector<uint> descendentes;
+    cout << "Descendentes: ";
+    visitado = vector<bool> (num_vertices, false);
+    DFS_DFS1(v, descendentes, arvDfs, visitado);
+    for(uint i = 0; i < descendentes.size(); i++) {
+        cout << vertices[descendentes[i]].nome << " ";
+    }
+    cout << endl;
+    cout << "----------------------------------" << endl;
+
+}
+
+void Grafo::DFS_printArvoreDFS(vector<vector<uint> > &arvDfs) {
+    for(uint i = 0; i < arvDfs.size(); i++) {
+        cout << vertices[i].nome << ": ";
+        for(uint j = 0; j < arvDfs[i].size(); j++) {
+            cout << vertices[arvDfs[i][j]].nome << " ";
+        }
+        cout << endl;
+    }
+}
+/*=================END =================*/
+/*=== GRANDE BLOCÃO DE CÓDIGO DA DFS ===*/
+/*======================================*/
