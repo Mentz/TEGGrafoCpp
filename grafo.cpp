@@ -24,7 +24,10 @@ int menu(Grafo *g)
 	puts("/*------------------------------------*/");
 	puts("Menu:");
 	puts("  0. Sair deste utilitário.");
-	puts("  1. Carregar grafo (arquivo .txt)");
+	if (!g->isSet())
+		puts("  1. Carregar grafo");
+	else
+		puts("  1. Carregar outro grafo");
 	puts("  2. Apresenta matriz de adjacência");
 	puts("  3. Apresenta matriz de incidência");
 	puts("  4. Apresenta lista de adjacência");
@@ -40,7 +43,8 @@ int menu(Grafo *g)
 	puts(" 14. Verificar se grafo é conexo");
 	puts(" 15. Verificar se grafo é Euleriano");
 	puts(" 16. Colorir o grafo");
-	puts(" 17. Passar DFS no grafo");
+	puts(" 17. Passar DFS no grafo - FALHO");
+	puts(" 18. Rodar Dijkstra - FALHO");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -118,6 +122,10 @@ int menu(Grafo *g)
 		case 17:
 			g->runDFS();
 			break;
+			
+		case 18:
+			g->runDijkstra();
+			break;
 
 		default:
 			operacao = -1;
@@ -163,15 +171,31 @@ int GAresta::getPeso()
 /*======================================**
 **			class Grafo					**
 **======================================*/
+bool Grafo::isSet()
+{
+	return set;
+}
+
 void Grafo::leGrafo()
 {
 	string caminho;
 	puts("Insira o nome do arquivo (deve estar na pasta atual):");
 	cin >> caminho;
+	leGrafo(caminho);
+}
+
+/*--------------------------------------*/
+void Grafo::leGrafo(string caminho)
+{
 	ifstream file;
 	file.open(caminho);
+	if (!file)
+	{
+		perror("Erro ao abrir arquivo.");
+		exit(EXIT_FAILURE);
+	}
 
-	int nn, na, tipo;
+	int nn, na, tipo, peso;
 
 	file >> nn >> na >> tipo;
 	this->tipo = tipo;
@@ -187,7 +211,11 @@ void Grafo::leGrafo()
 	{
 		string vAux1, vAux2;
 		file >> vAux1 >> vAux2;
-		addAresta(vAux1, vAux2);
+		if (tipo == 2 || tipo == 3)
+			file >> peso;
+		else
+			peso = 0;
+		addAresta(vAux1, vAux2, peso);
 	}
 
 	file.close();
@@ -348,6 +376,7 @@ void Grafo::listaArestas(bool marcado)
 void Grafo::atualizaNumVertices()
 {
 	num_vertices = vertices.size();
+	set = (num_vertices > 0);
 }
 
 /*--------------------------------------*/
@@ -438,6 +467,7 @@ void Grafo::remVertice(uint v_id)
 void Grafo::addAresta()
 {
 	uint v1_id, v2_id;
+	int peso = 0;
 	// Lista todos os vértices e solicita qual deve ser removido.
 	puts("Lista de vértices. (ID , Nome)");
 	for (uint i = 0; i < num_vertices; i++)
@@ -450,13 +480,16 @@ void Grafo::addAresta()
 	scanf("%u", &v2_id);
 	if (v2_id == 0)
 		return;
+	
+	puts("\nDigite o peso da aresta ou 0 para ignorar.");
+	cin >> peso;
 
-	addAresta(v1_id, v2_id);
+	addAresta(v1_id, v2_id, peso);
 }
 
 /*--------------------------------------*/
 // Usado somente na leitura de um arquivo.
-void Grafo::addAresta(string v1, string v2)
+void Grafo::addAresta(string v1, string v2, int peso)
 {
 	int v1_index, v2_index;
 	if ((v1_index = getIndexV(v1)) == -1 || (v2_index = getIndexV(v2)) == -1)
@@ -465,12 +498,12 @@ void Grafo::addAresta(string v1, string v2)
 		return;
 	}
 
-	addAresta(vertices[v1_index].id, vertices[v2_index].id);
+	addAresta(vertices[v1_index].id, vertices[v2_index].id, peso);
 }
 
 /*--------------------------------------*/
 // Só esse faz a adição de verdade.
-void Grafo::addAresta(uint v1_id, uint v2_id)
+void Grafo::addAresta(uint v1_id, uint v2_id, int peso)
 {
 	//printf("Aresta nova:  %u - %u\n", v1_id, v2_id);
 	int v1_index = getIndexV(v1_id), v2_index = getIndexV(v2_id);
@@ -489,6 +522,8 @@ void Grafo::addAresta(uint v1_id, uint v2_id)
 	vertices[v1_index].arestas.push_back(na.id);
 	if (v1_id != v2_id)
 		vertices[v2_index].arestas.push_back(na.id);
+
+	na.setPeso(peso);
 
 	arestas.push_back(na);
 	atualizaNumArestas();
@@ -931,14 +966,7 @@ void Grafo::runDFS() {
 	// Fim
 
 	// Rodando DFS no ultimo elemento do vetor topológico
-	//DFS_DFS0(vetTopologico.back(), -1, arvDfs, rArvDfs, visitado, listaAdj);
-	for (uint i = 0; i < num_vertices; i++)
-	{
-		if (!visitado[i])
-		{
-			DFS_DFS0(i, -1, arvDfs, rArvDfs, visitado, listaAdj);
-		}
-	}
+	DFS_DFS0(vetTopologico.back(), -1, arvDfs, rArvDfs, visitado, listaAdj);
 	// Fim
 
 
@@ -1045,3 +1073,62 @@ void Grafo::DFS_printArvoreDFS(vector<vector<uint> > &arvDfs) {
 /*=================END =================*/
 /*=== GRANDE BLOCÃO DE CÓDIGO DA DFS ===*/
 /*======================================*/
+
+
+/*================BEGIN ================*/
+/*============== DIJKSTRA ==============*/
+/*======================================*/
+void Grafo::runDijkstra()
+{
+	if (num_vertices == 0)
+	{
+		puts("Não há vértices.");
+		return;
+	}
+
+	listaVertices(false, false, false);
+	puts("Qual o vértice de partida? Digite o código dele.");
+	uint v_id;
+	int v_index;
+	cin >> v_id;
+	if ((v_index = getIndexV(v_id)) == -1)
+	{
+		puts("Não existe este vértice.");
+		return;
+	}
+	vector<uint> dist(num_vertices, (uint) 1000000);
+	dist[v_index] = 0;
+
+	Dijkstra(dist, v_index);
+
+	printf("Vértice origem: %s\n", vertices[v_index].nome.data());
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		printf("Destino: %s | Distância: %u\n", vertices[i].nome.data(), dist[i]);
+	}
+}
+
+void Grafo::Dijkstra(vector<uint> &dist, int v_first)
+{
+	priority_queue<pair<uint,int>, vector<pair<uint, int> >, greater<pair<uint, int> > > fila; // first = distancia, second = index;
+	fila.push(make_pair(0, v_first));
+	pair<uint, int> v_davez_pair;
+	uint v_index_davez, v_index_prox, v_davez_dist, a_davez_dist;
+	while (!fila.empty())
+	{
+		v_davez_pair = fila.top(); fila.pop();
+		v_index_davez = v_davez_pair.second;
+		v_davez_dist = v_davez_pair.first;
+		for (uint i = 0; i < vertices[v_index_davez].arestas.size(); i++)
+		{
+			v_index_prox = getIndexV(percorreAresta(vertices[v_index_davez].arestas[i],
+													vertices[v_index_davez].id));
+			a_davez_dist = arestas[getIndexA(vertices[v_index_davez].arestas[i])].getPeso();
+			if (dist[v_index_prox] > dist[v_index_davez] + a_davez_dist)
+			{
+				dist[v_index_prox] = dist[v_index_davez] + a_davez_dist;
+				fila.push(make_pair(dist[v_index_prox], v_index_prox));
+			}
+		}
+	}
+}

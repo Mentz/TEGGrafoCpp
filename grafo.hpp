@@ -8,6 +8,7 @@
 #include <map>
 #include <iomanip>
 #include <cmath>
+#include <queue>
 
 #define MAX(a,b) ((a<b)?b:a)
 #define MIN(a,b) ((a<b)?a:b)
@@ -57,6 +58,7 @@ private:
 	uint num_arestas, a_id_c; // a_id_c é o identificador único incremental para cada GAresta.
 	vector<GVertice> vertices;
 	vector<GAresta> arestas;
+	bool set;
 
 	int tipo; // 0 para não-direcionado, 1 para direcionado.
 
@@ -68,9 +70,13 @@ public:
 		this->v_id_c = 0;
 		this->a_id_c = 0;
 		this->tipo = -1; // Não inicializado.
+		this->set = false;
 	}
 
+	bool isSet();
+
 	void leGrafo();
+	void leGrafo(string caminho);
 	void mostraMatAdj(bool complemento);
 	void mostraMatInc();
 	void mostraListaAdj();
@@ -115,8 +121,8 @@ public:
 	 *	3. ID dos dois vértices: gera um nome para a nova aresta.
 	 */
 	void addAresta();
-	void addAresta(string v1, string v2);
-	void addAresta(uint v1_id, uint v2_id);
+	void addAresta(string v1, string v2, int peso);
+	void addAresta(uint v1_id, uint v2_id, int peso);
 
 	/** void remAresta(..);
 	 *	Variações:
@@ -196,6 +202,9 @@ public:
 	void DFS_getTopologico(uint atual, vector<vector<uint> > &listaAdj, vector<bool> &visitado, vector<uint> &vetTopologico);
 	void DFS_getInfoNo(uint v, vector<bool> &visitado, vector<vector<uint> > &listaAdj, vector<vector<uint> > &arvDfs, vector<vector<uint> > &rArvDfs);
 	void DFS_printArvoreDFS(vector<vector<uint> > &arvDfs);
+
+	void runDijkstra();
+	void Dijkstra(vector<uint> &dist, int v_first);
 };
 
 int menu(Grafo* g);
