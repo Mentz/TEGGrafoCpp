@@ -14,6 +14,7 @@
 #define MIN(a,b) ((a<b)?a:b)
 #define NAODIRECIONADO 0
 #define DIRECIONADO 1
+#define PONDERADO 2
 
 typedef unsigned int uint;
 
@@ -60,7 +61,11 @@ private:
 	vector<GAresta> arestas;
 	bool set;
 
-	int tipo; // 0 para não-direcionado, 1 para direcionado.
+	int tipo; /* 0 para não-direcionado,
+				 1 para direcionado,
+				 2 para não-direcionado ponderado,
+				 3 para direcionado ponderado.
+			  	*/
 
 public:
 	Grafo()
@@ -165,7 +170,7 @@ public:
 	void getGrauGrafo();
 
 	// Percorre a aresta com base no vértice de partida
-	uint percorreAresta(uint a_id, uint v_id);
+	uint percorreAresta(uint a_id, uint v_id, bool reverso);
 
 	void verificaConexo();
 
@@ -180,11 +185,13 @@ public:
 	bool getMarcadoVertice(uint v_id); // Retorna true se está marcado, false se não.
 	void marcaVertice(uint v_id);
 	void desmarcaVertice(uint v_id);
+	void desmarcaTodosVertices();
 
 	// Marcação de aresta.
 	bool getMarcadoAresta(uint a_id); // Retorna true se está marcado, false se não.
 	void marcaAresta(uint a_id);
 	void desmarcaAresta(uint a_id);
+	void desmarcaTodasArestas();
 
 	// Verifica se o grafo é Euleriano
 	void rodaFleury();
@@ -196,6 +203,7 @@ public:
 	// DEGUB:
 	void listaArestasDeVertice(uint v_id);
 
+	// DFS:
 	void runDFS();
 	void DFS_DFS0(uint atual, uint anterior, vector<vector<uint> > &arvDfs, vector<vector<uint> > &rArvDfs, vector<bool> &visitado, vector<vector<uint> > &listaAdj);
 	void DFS_DFS1(uint atual, vector<uint> &parentes,  vector<vector<uint> > &lista, vector<bool> & visitado);
@@ -203,6 +211,7 @@ public:
 	void DFS_getInfoNo(uint v, vector<bool> &visitado, vector<vector<uint> > &listaAdj, vector<vector<uint> > &arvDfs, vector<vector<uint> > &rArvDfs);
 	void DFS_printArvoreDFS(vector<vector<uint> > &arvDfs);
 
+	// Dijkstra:
 	void runDijkstra();
 	void Dijkstra(vector<uint> &dist, int v_first);
 };

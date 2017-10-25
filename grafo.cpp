@@ -44,7 +44,7 @@ int menu(Grafo *g)
 	puts(" 15. Verificar se grafo é Euleriano");
 	puts(" 16. Colorir o grafo");
 	puts(" 17. Passar DFS no grafo - FALHO");
-	puts(" 18. Rodar Dijkstra - FALHO");
+	puts(" 18. Rodar Dijkstra");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -187,6 +187,8 @@ void Grafo::leGrafo()
 /*--------------------------------------*/
 void Grafo::leGrafo(string caminho)
 {
+	vertices.clear();
+	arestas.clear();
 	ifstream file;
 	file.open(caminho);
 	if (!file)
@@ -211,8 +213,11 @@ void Grafo::leGrafo(string caminho)
 	{
 		string vAux1, vAux2;
 		file >> vAux1 >> vAux2;
-		if (tipo == 2 || tipo == 3)
+		if (tipo & PONDERADO)
+		{
 			file >> peso;
+			puts("é ponderado");
+		}
 		else
 			peso = 0;
 		addAresta(vAux1, vAux2, peso);
@@ -241,7 +246,7 @@ void Grafo::mostraMatAdj(bool complemento) {
 		v2_index = getIndexV(arestas[i].v2);
 		maxNameSize = MAX(MAX(vertices[v1_index].nome.size(), vertices[v2_index].nome.size()), maxNameSize);
 		adj[v1_index][v2_index]++;
-		if (tipo == NAODIRECIONADO && v1_index != v2_index)
+		if (!(tipo & DIRECIONADO) && v1_index != v2_index)
 			adj[v2_index][v1_index]++;
 	}
 
@@ -287,7 +292,7 @@ void Grafo::mostraMatInc() {
 				if (arestas[i].v2 == vertices[j].id)
 					conta = 2;
 				else
-					conta = (tipo) ? -1 : 1;
+					conta = (tipo & DIRECIONADO) ? -1 : 1;
 			else if (arestas[i].v2 == vertices[j].id)
 				conta = 1;
 
@@ -304,7 +309,8 @@ void Grafo::mostraListaAdj() {
 		printf("%s:", vertices[i].nome.data());
 		for (uint j = 0; j < vertices[i].arestas.size(); j++)
 		{
-			uint dest = percorreAresta(vertices[i].arestas[j], vertices[i].id);
+			uint dest = percorreAresta(vertices[i].arestas[j], vertices[i].id, false);
+			printf("--%u--", dest);
 			printf("%s %s", (j && dest)?",":"",
 					getNomeV(dest).data());
 		}
@@ -698,13 +704,15 @@ void Grafo::atualizaGrauV(uint v_id)
 }
 
 /*--------------------------------------*/
-uint Grafo::percorreAresta(uint a_id, uint v_id)
+uint Grafo::percorreAresta(uint a_id, uint v_id, bool reverso)
 {
 	int a_index = getIndexA(a_id);
-	if (arestas[a_index].v1 == v_id)	// Se a origem for o vértice atual, percorre.
+	if (arestas[a_index].v1 == v_id)
+		// Se a origem for o vértice atual, percorre.
 		return arestas[a_index].v2;
-	else if (arestas[a_index].v2 == v_id && tipo == 0) 	// Se o destino for o vértice atual e o
-		return arestas[a_index].v1; 					// grafo for não-direcionado, percorre.
+	else if (arestas[a_index].v2 == v_id && (reverso || !(tipo & DIRECIONADO)))
+		// Se o destino for o vértice atual e o grafo for não-direcionado, percorre.
+		return arestas[a_index].v1;
 	else
 	{
 		//puts("Não é possível percorrer essa aresta.");
@@ -720,7 +728,7 @@ void Grafo::DFS(uint v_davez) {
 	uint v_proximo;
 	for (uint i = 0; i < vertices[v_index].arestas.size(); i++) {
 		a_davez = vertices[v_index].arestas[i];
-		v_proximo = percorreAresta(a_davez, v_davez);
+		v_proximo = percorreAresta(a_davez, v_davez, false);
 		if (v_proximo == 0 || getMarcadoVertice(v_proximo) == true)
 			continue;
 		DFS(v_proximo);
@@ -862,7 +870,7 @@ bool Grafo::fleury(uint v_id_davez, uint v_id_inicial)
 		else
 		{
 			marcaAresta(a_davez);
-			v_id_prox = percorreAresta(a_davez, v_id_davez);
+			v_id_prox = percorreAresta(a_davez, v_id_davez, false);
 			if (v_id_prox == 0)
 			{
 				desmarcaAresta(a_davez);
@@ -903,7 +911,7 @@ int Grafo::colorir(bool imprime)
 		for (uint j = 0; j < vertices[i].arestas.size(); j++)
 		{
 			a_davez = vertices[i].arestas[j];
-			v_vizinho = getIndexV(percorreAresta(a_davez, vertices[i].id));
+			v_vizinho = getIndexV(percorreAresta(a_davez, vertices[i].id, false));
 			vcores[vertices[v_vizinho].cor] = true;
 		}
 
@@ -1080,11 +1088,13 @@ void Grafo::DFS_printArvoreDFS(vector<vector<uint> > &arvDfs) {
 /*======================================*/
 void Grafo::runDijkstra()
 {
+	puts("0");
 	if (num_vertices == 0)
 	{
 		puts("Não há vértices.");
 		return;
 	}
+	puts("1");
 
 	listaVertices(false, false, false);
 	puts("Qual o vértice de partida? Digite o código dele.");
@@ -1096,39 +1106,56 @@ void Grafo::runDijkstra()
 		puts("Não existe este vértice.");
 		return;
 	}
-	vector<uint> dist(num_vertices, (uint) 1000000);
+	puts("2");
+	vector<uint> dist(num_vertices, (uint) -1);
 	dist[v_index] = 0;
+	puts("3");
 
 	Dijkstra(dist, v_index);
+	puts("4");
 
 	printf("Vértice origem: %s\n", vertices[v_index].nome.data());
 	for (uint i = 0; i < num_vertices; i++)
 	{
-		printf("Destino: %s | Distância: %u\n", vertices[i].nome.data(), dist[i]);
+		printf("Destino: %s | Distância: %d\n", vertices[i].nome.data(), dist[i]);
 	}
 }
 
 void Grafo::Dijkstra(vector<uint> &dist, int v_first)
 {
-	priority_queue<pair<uint,int>, vector<pair<uint, int> >, greater<pair<uint, int> > > fila; // first = distancia, second = index;
+	// first = distancia, second = index;
+	priority_queue<pair<uint,int>, vector<pair<uint, int> >, greater<pair<uint, int> > > fila;
+	puts("t0");
 	fila.push(make_pair(0, v_first));
+	puts("t1");
 	pair<uint, int> v_davez_pair;
-	uint v_index_davez, v_index_prox, v_davez_dist, a_davez_dist;
+	puts("t2");
+	uint v_index_davez, v_index_prox, a_davez_dist;
+	puts("t3");
 	while (!fila.empty())
 	{
 		v_davez_pair = fila.top(); fila.pop();
 		v_index_davez = v_davez_pair.second;
-		v_davez_dist = v_davez_pair.first;
+		printf("t4 - %d\n", v_index_davez);
 		for (uint i = 0; i < vertices[v_index_davez].arestas.size(); i++)
 		{
+			puts("t4.1");
 			v_index_prox = getIndexV(percorreAresta(vertices[v_index_davez].arestas[i],
-													vertices[v_index_davez].id));
+													vertices[v_index_davez].id, false));
+			if (v_index_prox == (uint) -1) continue; // Caso o grafo seja dirigido
+			puts("t4.2");
 			a_davez_dist = arestas[getIndexA(vertices[v_index_davez].arestas[i])].getPeso();
+			puts("t4.3");
+			printf("atual = %u, prox = %u\n", v_index_davez, v_index_prox);
 			if (dist[v_index_prox] > dist[v_index_davez] + a_davez_dist)
 			{
+				puts("t4.4");
 				dist[v_index_prox] = dist[v_index_davez] + a_davez_dist;
+				puts("t4.5");
 				fila.push(make_pair(dist[v_index_prox], v_index_prox));
+				puts("t4.6");
 			}
+			puts("t4.7");
 		}
 	}
 }
