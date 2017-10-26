@@ -26,8 +26,8 @@ int menu(Grafo *g)
 	puts("  0. Sair deste utilitário.");
 	if (!g->isSet())
 		puts("  1. Carregar grafo");
-	else
-		puts("  1. Carregar outro grafo");
+	// else
+	// 	puts("  1. Carregar outro grafo");
 	puts("  2. Apresenta matriz de adjacência");
 	puts("  3. Apresenta matriz de incidência");
 	puts("  4. Apresenta lista de adjacência");
@@ -45,6 +45,7 @@ int menu(Grafo *g)
 	puts(" 16. Colorir o grafo");
 	puts(" 17. Passar DFS no grafo - FALHO");
 	puts(" 18. Rodar Dijkstra");
+	puts(" 19. Rodar Bellman-Ford");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -125,6 +126,10 @@ int menu(Grafo *g)
 			
 		case 18:
 			g->runDijkstra();
+			break;
+			
+		case 19:
+			g->runBellmanFord();
 			break;
 
 		default:
@@ -372,6 +377,7 @@ void Grafo::listaArestas(bool marcado)
 				maxColSize, arestas[i].id, maxColSize+1, arestas[i].nome.data(),
 				getNomeV(arestas[i].v1).data(), (tipo) ? "":"<", getNomeV(arestas[i].v2).data());
 		if (marcado) printf(" | Marcado: %s", getMarcadoAresta(arestas[i].id) ? "Sim":"Não");
+		if (tipo & PONDERADO) printf(" | Peso: %d", arestas[i].getPeso());
 		printf("\n");
 	}
 
@@ -977,7 +983,6 @@ void Grafo::runDFS() {
 	DFS_DFS0(vetTopologico.back(), -1, arvDfs, rArvDfs, visitado, listaAdj);
 	// Fim
 
-
 	// Printando Árvore da DFS
 	cout << "Árvore gerada pela DFS: " << endl;
 	DFS_printArvoreDFS(arvDfs);
@@ -1088,13 +1093,19 @@ void Grafo::DFS_printArvoreDFS(vector<vector<uint> > &arvDfs) {
 /*======================================*/
 void Grafo::runDijkstra()
 {
-	puts("0");
 	if (num_vertices == 0)
 	{
 		puts("Não há vértices.");
 		return;
 	}
-	puts("1");
+	for (uint i = 0; i < num_arestas; i++)
+	{
+		if (arestas[i].getPeso() < 0)
+		{
+			puts("Grafo possui arestas com peso negativo.");
+			return;
+		}
+	}
 
 	listaVertices(false, false, false);
 	puts("Qual o vértice de partida? Digite o código dele.");
@@ -1106,13 +1117,11 @@ void Grafo::runDijkstra()
 		puts("Não existe este vértice.");
 		return;
 	}
-	puts("2");
+
 	vector<uint> dist(num_vertices, (uint) -1);
 	dist[v_index] = 0;
-	puts("3");
 
 	Dijkstra(dist, v_index);
-	puts("4");
 
 	printf("Vértice origem: %s\n", vertices[v_index].nome.data());
 	for (uint i = 0; i < num_vertices; i++)
@@ -1121,41 +1130,104 @@ void Grafo::runDijkstra()
 	}
 }
 
+/*--------------------------------------*/
 void Grafo::Dijkstra(vector<uint> &dist, int v_first)
 {
 	// first = distancia, second = index;
 	priority_queue<pair<uint,int>, vector<pair<uint, int> >, greater<pair<uint, int> > > fila;
-	puts("t0");
 	fila.push(make_pair(0, v_first));
-	puts("t1");
 	pair<uint, int> v_davez_pair;
-	puts("t2");
 	uint v_index_davez, v_index_prox, a_davez_dist;
-	puts("t3");
 	while (!fila.empty())
 	{
 		v_davez_pair = fila.top(); fila.pop();
 		v_index_davez = v_davez_pair.second;
-		printf("t4 - %d\n", v_index_davez);
 		for (uint i = 0; i < vertices[v_index_davez].arestas.size(); i++)
 		{
-			puts("t4.1");
 			v_index_prox = getIndexV(percorreAresta(vertices[v_index_davez].arestas[i],
 													vertices[v_index_davez].id, false));
 			if (v_index_prox == (uint) -1) continue; // Caso o grafo seja dirigido
-			puts("t4.2");
 			a_davez_dist = arestas[getIndexA(vertices[v_index_davez].arestas[i])].getPeso();
-			puts("t4.3");
-			printf("atual = %u, prox = %u\n", v_index_davez, v_index_prox);
 			if (dist[v_index_prox] > dist[v_index_davez] + a_davez_dist)
 			{
-				puts("t4.4");
 				dist[v_index_prox] = dist[v_index_davez] + a_davez_dist;
-				puts("t4.5");
 				fila.push(make_pair(dist[v_index_prox], v_index_prox));
-				puts("t4.6");
 			}
-			puts("t4.7");
 		}
 	}
 }
+/*=================END =================*/
+/*============== DIJKSTRA ==============*/
+/*======================================*/
+
+
+/*================BEGIN ================*/
+/*============ BELLMAN-FORD ============*/
+/*======================================*/
+void Grafo::runBellmanFord()
+{
+	if (num_vertices == 0)
+	{
+		puts("Não há vértices.");
+		return;
+	}
+
+	listaVertices(false, false, false);
+	puts("Qual o vértice de partida? Digite o código dele.");
+	uint v_id;
+	int v_index;
+	cin >> v_id;
+	if ((v_index = getIndexV(v_id)) == -1)
+	{
+		puts("Não existe este vértice.");
+		return;
+	}
+	vector<int> dist(num_vertices, (1<<30)-1);
+	dist[v_index] = 0;
+
+	if (BellmanFord(dist, v_index))
+	{
+		puts("Há ciclos negativos, não é possível determinar por Bellman-Ford.");
+		return;
+	}
+
+	printf("Vértice origem: %s\n", vertices[v_index].nome.data());
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		printf("Destino: %s | Distância: %d\n", vertices[i].nome.data(), dist[i]);
+	}
+}
+
+/*--------------------------------------*/
+int Grafo::BellmanFord(vector<int> &dist, int v_first)
+{
+	int v_index_prox, a_davez_dist, a_id_davez;
+	vector<int> prev(num_vertices, (1<<30)-1);
+	
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		for (uint j = 0; j < num_vertices; j++)
+		{
+			for (uint k = 0; k < vertices[j].arestas.size(); k++)
+			{
+				a_id_davez = vertices[j].arestas[k];
+				v_index_prox = getIndexV(percorreAresta(a_id_davez, vertices[j].id, false));
+				if (v_index_prox == -1) continue; // Caso seja direcionado.
+				a_davez_dist = arestas[getIndexA(a_id_davez)].getPeso();
+				dist[v_index_prox] = MIN(dist[v_index_prox], dist[j] + a_davez_dist);
+			}
+		}
+		if (i == num_vertices - 2)
+			for (uint j = 0; j < num_vertices; j++)
+				prev[j] = dist[j];
+		
+		if (i == num_vertices - 1)
+			for (uint j = 0; j < num_vertices; j++)
+				if (prev[j] != dist[j])
+					return 1;
+	}
+	return 0;
+}
+/*=================END =================*/
+/*============ BELLMAN-FORD ============*/
+/*======================================*/

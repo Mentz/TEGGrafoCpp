@@ -214,6 +214,10 @@ public:
 	// Dijkstra:
 	void runDijkstra();
 	void Dijkstra(vector<uint> &dist, int v_first);
+
+	// Bellman-Ford:
+	void runBellmanFord();
+	int BellmanFord(vector<int> &dist, int v_first);
 };
 
 int menu(Grafo* g);
