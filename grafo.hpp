@@ -12,6 +12,7 @@
 
 #define MAX(a,b) ((a<b)?b:a)
 #define MIN(a,b) ((a<b)?a:b)
+#define INFINITO (1<<29)
 #define NAODIRECIONADO 0
 #define DIRECIONADO 1
 #define PONDERADO 2
@@ -218,6 +219,10 @@ public:
 	// Bellman-Ford:
 	void runBellmanFord();
 	int BellmanFord(vector<int> &dist, int v_first);
+
+	// Floyd-Warshall:
+	void runFloydWarshall();
+	void FloydWarshall(vector<vector<int> > &dist);
 };
 
 int menu(Grafo* g);
