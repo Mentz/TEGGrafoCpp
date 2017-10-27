@@ -173,7 +173,7 @@ public:
 	// Percorre a aresta com base no vértice de partida
 	uint percorreAresta(uint a_id, uint v_id, bool reverso);
 
-	void verificaConexo();
+	bool verificaConexo(bool print);
 
 	// DFS. Apenas marca os vértices onde passa.
 	void DFS(uint v_davez);
@@ -223,6 +223,9 @@ public:
 	// Floyd-Warshall:
 	void runFloydWarshall();
 	void FloydWarshall(vector<vector<int> > &dist);
+
+	// Prim:
+	void runPrim();
 };
 
 int menu(Grafo* g);

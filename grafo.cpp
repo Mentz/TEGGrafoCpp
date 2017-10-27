@@ -47,7 +47,7 @@ int menu(Grafo *g)
 	puts(" 18. Rodar Dijkstra");
 	puts(" 19. Rodar Bellman-Ford");
 	puts(" 20. Rodar Floyd-Warshall");
-	//puts(" 21. Rodar Prim");
+	puts(" 21. Rodar Prim");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -111,7 +111,7 @@ int menu(Grafo *g)
 			break;
 
 		case 14:
-			g->verificaConexo();
+			g->verificaConexo(true);
 			break;
 
 		case 15:
@@ -139,7 +139,7 @@ int menu(Grafo *g)
 			break;
 			
 		case 21:
-			//g->runPrim();
+			g->runPrim();
 			break;
 
 		default:
@@ -752,7 +752,7 @@ void Grafo::DFS(uint v_davez) {
 }
 
 /*--------------------------------------*/
-void Grafo::verificaConexo() {
+bool Grafo::verificaConexo(bool print) {
 	puts("Grafo é conexo?");
 	bool conexo = true;
 
@@ -769,13 +769,12 @@ void Grafo::verificaConexo() {
 		}
 	}
 
-	if (conexo)
-		puts("SIM. O grafo é conexo");
-	else
-		puts("NÃO. O grafo é desconexo");
+	if (print) cout << ((conexo)? "SIM. O grafo é conexo":"NÃO. O grafo é desconexo") << endl;
 
 	for (uint i = 0; i < num_vertices; i++)
 		desmarcaVertice(vertices[i].id);
+	
+	return conexo;
 }
 
 /*--------------------------------------*/
@@ -1268,8 +1267,6 @@ int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
 			{
 				if (dist[j] == INFINITO) continue;
 				a_id_davez = vertices[j].arestas[k];
-				if (getMarcadoAresta(a_id_davez) == true) continue;
-				marcaAresta(a_id_davez);
 				v_index_prox = getIndexV(percorreAresta(a_id_davez, vertices[j].id, false));
 				if (v_index_prox == -1) continue; // Caso seja direcionado.
 				a_davez_dist = arestas[getIndexA(a_id_davez)].getPeso();
@@ -1279,7 +1276,6 @@ int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
 					previous[v_index_prox] = j;
 				}
 			}
-			desmarcaTodasArestas();
 		}
 		if (i == num_vertices - 2)
 			for (uint j = 0; j < num_vertices; j++)
@@ -1338,25 +1334,7 @@ void Grafo::runFloydWarshall()
 		dist[i][i] = 0;
 		maxNameSize = MAX(maxNameSize, vertices[i].nome.size());
 	}
-	puts("\nDistâncias Mínimas: (Floyd-Warshall)");
-	
-	cout << setw(5) << "";
-	for (uint i = 0; i < num_vertices; i++)
-		cout << setw(5) << vertices[i].nome;
 
-	cout << endl;
-
-	for (uint i = 0; i < num_vertices; i++)
-	{
-		cout << setw(5) << vertices[i].nome;
-		for (uint j = 0; j < num_vertices; j++)
-			if (dist[i][j] == INFINITO)
-				cout << setw(5) << " ";
-			else
-				cout << setw(5) << dist[i][j];
-
-		cout << endl;
-	}
 	FloydWarshall(dist);
 	
 	for (uint i = 0; i < num_vertices; i++)
@@ -1372,7 +1350,7 @@ void Grafo::runFloydWarshall()
 				maxNumSize = MAX(maxNumSize, (uint) round(log10(abs(dist[i][j]))) + 1);
 		}
 	}
-/*
+
 	puts("\nDistâncias Mínimas: (Floyd-Warshall)");
 
 	cout << setw(maxNameSize) << "";
@@ -1392,7 +1370,6 @@ void Grafo::runFloydWarshall()
 
 		cout << endl;
 	}
-	*/
 }
 
 /*--------------------------------------*/
@@ -1404,37 +1381,10 @@ void Grafo::FloydWarshall(vector<vector<int> > &dist)
 		{
 			for (uint j = 0; j < num_vertices; j++)
 			{
-				if (j == i) continue;
 				if (dist[i][k] == INFINITO || dist[k][j] == INFINITO) continue;
-				if (dist[i][j] > dist[i][k] + dist[k][j])
-				{
-					printf("dist[%d][%d] = dist[%d][%d] + dist[%d][%d]\n", i, j, i, k, k, j);
-					printf("%10d = %10d + %10d", dist[i][j], dist[i][k], dist[k][j]);
-					dist[i][j] = dist[i][k] + dist[k][j];
-					printf(" = %6d\n", dist[i][j]);
-				}
+				dist[i][j] = MIN(dist[i][j], dist[i][k] + dist[k][j]);
 			}
 		}
-		printf("\nDistâncias Mínimas: (Floyd-Warshall) K = %d\n", k);
-		
-		cout << setw(5) << "";
-		for (uint i = 0; i < num_vertices; i++)
-			cout << setw(5) << vertices[i].nome;
-	
-		cout << endl;
-	
-		for (uint i = 0; i < num_vertices; i++)
-		{
-			cout << setw(5) << vertices[i].nome;
-			for (uint j = 0; j < num_vertices; j++)
-				if (dist[i][j] == INFINITO)
-					cout << setw(5) << " ";
-				else
-					cout << setw(5) << dist[i][j];
-	
-			cout << endl;
-		}
-		cout << endl;
 	}
 }
 /*=================END =================*/
@@ -1445,9 +1395,77 @@ void Grafo::FloydWarshall(vector<vector<int> > &dist)
 /*================BEGIN ================*/
 /*================ PRIM ================*/
 /*======================================*/
-/*
 void Grafo::runPrim()
 {
+	if (num_vertices < 1)
+	{
+		puts("Não há vértices.");
+		return;
+	}
 
+	if (tipo & DIRECIONADO)
+	{
+		puts("Prim não funciona em grafos direcionados.");
+		return;
+	}
+
+	vector<vector<pair<int, int> > > listaAdj (num_vertices);
+
+	// Criação da listaAdj (auxiliar)
+	for(uint i = 0; i < num_arestas; i++) {
+		uint v1_id = arestas[i].v1, v2_id = arestas[i].v2;
+		int v1_index = getIndexV(v1_id), v2_index = getIndexV(v2_id);
+		listaAdj[v1_index].push_back({v2_index, arestas[i].getPeso()});
+		if(!(tipo & DIRECIONADO))
+			listaAdj[v2_index].push_back({v1_index, arestas[i].getPeso()});
+	}
+	// Fim
+
+	vector<vector<pair<int, int> > > arvPrim (num_vertices);
+	vector<bool> visitados (num_vertices, false);
+
+	uint daVez = 0; // Tem que começar de algum lugar, né?
+
+	cout << "Caminho percorrido por PRIM, começando por: " << vertices[daVez].nome << endl;
+    visitados[daVez] = true;
+    pair<int, int> vertice = { -1, -1 }; //vertice, peso
+    int vPai = -1;
+
+    do {
+        vertice = { -1, -1 }; //vertice, peso
+        vPai = -1;
+        for (uint i = 0; i < listaAdj.size(); i++) {
+            if (visitados[i]) {
+                for (uint j = 0; j < listaAdj[i].size(); j++) {
+                    int vAtual = listaAdj[i][j].first;
+                    if ((listaAdj[i][j].second < vertice.second || vertice.second == -1) && !visitados[vAtual]) {
+                        vertice = listaAdj[i][j];
+                        vPai = i;
+                    }
+                }
+            }
+        }
+
+        if(vPai != -1) {
+            visitados[vertice.first] = true;
+            cout << vertices[vPai].nome << " -> " << vertices[vertice.first].nome << " - " << vertice.second << endl;
+            arvPrim[vPai].push_back(vertice);
+        } else 
+            cout << "Fim das iterações do Prim." << endl << endl; 
+    }while(vertice != make_pair(-1, -1));
+
+	cout << "Árvore geradora mínima" << endl;
+    for(uint i = 0; i < arvPrim.size(); i++) {
+		if (arvPrim[i].size() < 1) continue;
+        cout << vertices[i].nome << " -> ";
+        for(uint j = 0; j < arvPrim[i].size(); j++) {
+            cout << "(" << vertices[arvPrim[i][j].first].nome << ", " << arvPrim[i][j].second << ")";
+            if(j != arvPrim[i].size()-1) 
+                cout << ", ";
+        }
+        cout << endl;
+    }
 }
-*/
+/*=================END =================*/
+/*================ PRIM ================*/
+/*======================================*/
