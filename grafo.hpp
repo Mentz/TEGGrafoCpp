@@ -214,11 +214,11 @@ public:
 
 	// Dijkstra:
 	void runDijkstra();
-	void Dijkstra(vector<uint> &dist, int v_first);
+	void Dijkstra(vector<uint> &dist, vector<int> &previous, int v_first);
 
 	// Bellman-Ford:
 	void runBellmanFord();
-	int BellmanFord(vector<int> &dist, int v_first);
+	int BellmanFord(vector<int> &dist, vector<int> &previous, int v_first);
 
 	// Floyd-Warshall:
 	void runFloydWarshall();

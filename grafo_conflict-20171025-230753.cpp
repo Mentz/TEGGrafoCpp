@@ -46,8 +46,6 @@ int menu(Grafo *g)
 	puts(" 17. Passar DFS no grafo - FALHO");
 	puts(" 18. Rodar Dijkstra");
 	puts(" 19. Rodar Bellman-Ford");
-	puts(" 20. Rodar Floyd-Warshall");
-	//puts(" 21. Rodar Prim");
 	cout << "\nEscolha a operação: ";
 
 	scanf("%d", &operacao);
@@ -132,14 +130,6 @@ int menu(Grafo *g)
 			
 		case 19:
 			g->runBellmanFord();
-			break;
-			
-		case 20:
-			g->runFloydWarshall();
-			break;
-			
-		case 21:
-			//g->runPrim();
 			break;
 
 		default:
@@ -971,7 +961,7 @@ void Grafo::runDFS() {
 		uint v1_id = arestas[i].v1, v2_id = arestas[i].v2;
 		int v1_index = getIndexV(v1_id), v2_index = getIndexV(v2_id);
 		listaAdj[v1_index].push_back(v2_index);
-		if(!(tipo & DIRECIONADO))
+		if(this->tipo == 0)
 			listaAdj[v2_index].push_back(v1_index);
 	}
 	// Fim
@@ -1129,24 +1119,19 @@ void Grafo::runDijkstra()
 	}
 
 	vector<uint> dist(num_vertices, (uint) -1);
-	vector<int> prev(num_vertices, -1);
 	dist[v_index] = 0;
 
-	Dijkstra(dist, prev, v_index);
+	Dijkstra(dist, v_index);
 
 	printf("Vértice origem: %s\n", vertices[v_index].nome.data());
 	for (uint i = 0; i < num_vertices; i++)
 	{
-		printf("Destino: %s", vertices[i].nome.data());
-		if (dist[i] != (INFINITO))
-			printf(" | Distância: %d | Anterior: %s\n", dist[i], (prev[i] != -1) ? vertices[prev[i]].nome.data():"-");
-		else
-			printf(" | Inalcançável\n");
+		printf("Destino: %s | Distância: %d\n", vertices[i].nome.data(), dist[i]);
 	}
 }
 
 /*--------------------------------------*/
-void Grafo::Dijkstra(vector<uint> &dist, vector<int> &previous, int v_first)
+void Grafo::Dijkstra(vector<uint> &dist, int v_first)
 {
 	// first = distancia, second = index;
 	priority_queue<pair<uint,int>, vector<pair<uint, int> >, greater<pair<uint, int> > > fila;
@@ -1167,7 +1152,6 @@ void Grafo::Dijkstra(vector<uint> &dist, vector<int> &previous, int v_first)
 			{
 				dist[v_index_prox] = dist[v_index_davez] + a_davez_dist;
 				fila.push(make_pair(dist[v_index_prox], v_index_prox));
-				previous[v_index_prox] = v_index_davez;
 			}
 		}
 	}
@@ -1198,10 +1182,10 @@ void Grafo::runBellmanFord()
 		puts("Não existe este vértice.");
 		return;
 	}
-	vector<int> dist(num_vertices, INFINITO), prev(num_vertices, -1);
+	vector<int> dist(num_vertices, (1<<30)-1);
 	dist[v_index] = 0;
 
-	if (BellmanFord(dist, prev, v_index))
+	if (BellmanFord(dist, v_index))
 	{
 		puts("Há ciclos negativos, não é possível determinar por Bellman-Ford.");
 		return;
@@ -1210,19 +1194,15 @@ void Grafo::runBellmanFord()
 	printf("Vértice origem: %s\n", vertices[v_index].nome.data());
 	for (uint i = 0; i < num_vertices; i++)
 	{
-		printf("Destino: %s", vertices[i].nome.data());
-		if (dist[i] != (INFINITO))
-			printf(" | Distância: %d | Anterior: %s\n", dist[i], (prev[i] != -1) ? vertices[prev[i]].nome.data():"-");
-		else
-			printf(" | Inalcançável\n");
+		printf("Destino: %s | Distância: %d\n", vertices[i].nome.data(), dist[i]);
 	}
 }
 
 /*--------------------------------------*/
-int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
+int Grafo::BellmanFord(vector<int> &dist, int v_first)
 {
 	int v_index_prox, a_davez_dist, a_id_davez;
-	vector<int> prev(num_vertices, INFINITO);
+	vector<int> prev(num_vertices, (1<<30)-1);
 	
 	for (uint i = 0; i < num_vertices; i++)
 	{
@@ -1230,16 +1210,11 @@ int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
 		{
 			for (uint k = 0; k < vertices[j].arestas.size(); k++)
 			{
-				if (dist[j] == INFINITO) continue;
 				a_id_davez = vertices[j].arestas[k];
 				v_index_prox = getIndexV(percorreAresta(a_id_davez, vertices[j].id, false));
 				if (v_index_prox == -1) continue; // Caso seja direcionado.
 				a_davez_dist = arestas[getIndexA(a_id_davez)].getPeso();
-				if (dist[v_index_prox] > dist[j] + a_davez_dist)
-				{
-					dist[v_index_prox] = dist[j] + a_davez_dist;
-					previous[v_index_prox] = j;
-				}
+				dist[v_index_prox] = MIN(dist[v_index_prox], dist[j] + a_davez_dist);
 			}
 		}
 		if (i == num_vertices - 2)
@@ -1256,88 +1231,3 @@ int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
 /*=================END =================*/
 /*============ BELLMAN-FORD ============*/
 /*======================================*/
-
-/*================BEGIN ================*/
-/*=========== FLOYD-WARSHALL ===========*/
-/*======================================*/
-void Grafo::runFloydWarshall()
-{
-	if (num_vertices == 0)
-	{
-		puts("Não há vértices.");
-		return;
-	}
-
-	vector<vector<int> > dist(num_vertices, vector<int>(num_vertices, INFINITO));
-	for(uint i = 0; i < num_arestas; i++) {
-		uint v1_id = arestas[i].v1, v2_id = arestas[i].v2;
-		int v1_index = getIndexV(v1_id), v2_index = getIndexV(v2_id);
-		dist[v1_index][v2_index] = arestas[i].getPeso();
-		if(!(tipo & DIRECIONADO))
-			dist[v2_index][v1_index] = arestas[i].getPeso();
-	}
-
-	uint maxNameSize, maxNumSize;
-
-	for (uint i = 0; i < num_vertices; i++)
-	{
-		dist[i][i] = 0;
-		maxNameSize = MAX(maxNameSize, vertices[i].nome.size());
-	}
-
-	FloydWarshall(dist);
-	
-	for (uint i = 0; i < num_vertices; i++)
-	{
-		if (dist[i][i] != 0)
-		{
-			puts("Há ciclos negativos, não é possível executar Floyd-Warshall.");
-			return;
-		}
-		for (uint j = 0; j < num_vertices; j++) 
-		{
-			if (dist[i][j] != INFINITO)
-				maxNumSize = MAX(maxNumSize, (uint) round(log10(abs(dist[i][j]))) + 1);
-		}
-	}
-
-	puts("\nDistâncias Mínimas: (Floyd-Warshall)");
-
-	cout << setw(maxNameSize) << "";
-	for (uint i = 0; i < num_vertices; i++)
-		cout << setw(MAX(vertices[i].nome.size(), maxNumSize) + 2) << vertices[i].nome;
-
-	cout << endl;
-
-	for (uint i = 0; i < num_vertices; i++)
-	{
-		cout << setw(maxNameSize) << vertices[i].nome;
-		for (uint j = 0; j < num_vertices; j++)
-			if (dist[i][j] == INFINITO)
-				cout << setw(MAX(vertices[j].nome.size(), maxNumSize) + 2) << " ";
-			else
-				cout << setw(MAX(vertices[j].nome.size(), maxNumSize) + 2) << dist[i][j];
-
-		cout << endl;
-	}
-}
-
-/*--------------------------------------*/
-void Grafo::FloydWarshall(vector<vector<int> > &dist)
-{	
-	for (uint k = 0; k < num_vertices; k++)
-	{
-		for (uint i = 0; i < num_vertices; i++)
-		{
-			for (uint j = 0; j < num_vertices; j++)
-			{
-				if (dist[i][k] == INFINITO || dist[k][j] == INFINITO) continue;
-				dist[i][j] = MIN(dist[i][j], dist[i][k] + dist[k][j]);
-			}
-		}
-	}
-}
-/*=================END =================*/
-/*=========== FLOYD-WARSHALL ===========*/
-/*======================================*/
-/* LINHA 1300 UHUUUUUUUUUUUUUUUUUUUUUUU */
