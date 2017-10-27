@@ -1011,7 +1011,11 @@ void Grafo::DFS_DFS0(uint atual, uint anterior, vector<vector<uint> > &arvDfs, v
     if(anterior != (uint) -1) {
         arvDfs[anterior].push_back(atual);
         rArvDfs[atual].push_back(anterior);
-    }
+	}
+	else
+	{
+		visitado[atual] = true;
+	}
 
     for(uint i = 0; i < listaAdj[atual].size(); i++) {
         uint u = listaAdj[atual][i];
@@ -1056,8 +1060,8 @@ void Grafo::DFS_getInfoNo(uint v, vector<bool> &visitado, vector<vector<uint> > 
     cout << "Filhos: ";
     visitado = vector<bool> (num_vertices, false);
 
-    for(uint i = 0; i < listaAdj[v].size(); i++) {
-        uint u = listaAdj[v][i];
+    for(uint i = 0; i < arvDfs[v].size(); i++) {
+        uint u = arvDfs[v][i];
         cout << vertices[u].nome << " ";
         visitado[u] = true;
     }
