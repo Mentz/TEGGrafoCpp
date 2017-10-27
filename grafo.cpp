@@ -43,7 +43,7 @@ int menu(Grafo *g)
 	puts(" 14. Verificar se grafo é conexo");
 	puts(" 15. Verificar se grafo é Euleriano");
 	puts(" 16. Colorir o grafo");
-	puts(" 17. Passar DFS no grafo - FALHO");
+	puts(" 17. Passar DFS no grafo");
 	puts(" 18. Rodar Dijkstra");
 	puts(" 19. Rodar Bellman-Ford");
 	puts(" 20. Rodar Floyd-Warshall");
@@ -1345,3 +1345,13 @@ void Grafo::FloydWarshall(vector<vector<int> > &dist)
 /*=========== FLOYD-WARSHALL ===========*/
 /*======================================*/
 /* LINHA 1300 UHUUUUUUUUUUUUUUUUUUUUUUU */
+
+/*================BEGIN ================*/
+/*================ PRIM ================*/
+/*======================================*/
+/*
+void Grafo::runPrim()
+{
+
+}
+*/
