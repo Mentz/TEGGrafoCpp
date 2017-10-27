@@ -385,7 +385,7 @@ void Grafo::listaArestas(bool marcado)
 	{
 		printf("ID: %*u | Nome: %*s | Vértices: %s %s-> %s",
 				maxColSize, arestas[i].id, maxColSize+1, arestas[i].nome.data(),
-				getNomeV(arestas[i].v1).data(), (tipo) ? "":"<", getNomeV(arestas[i].v2).data());
+				getNomeV(arestas[i].v1).data(), (tipo & DIRECIONADO) ? "":"<", getNomeV(arestas[i].v2).data());
 		if (marcado) printf(" | Marcado: %s", getMarcadoAresta(arestas[i].id) ? "Sim":"Não");
 		if (tipo & PONDERADO) printf(" | Peso: %d", arestas[i].getPeso());
 		printf("\n");
@@ -802,6 +802,15 @@ void Grafo::desmarcaVertice(uint v_id)
 }
 
 /*--------------------------------------*/
+void Grafo::desmarcaTodosVertices()
+{
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		desmarcaVertice(vertices[i].id);
+	}
+}
+
+/*--------------------------------------*/
 bool Grafo::getMarcadoAresta(uint a_id)
 {
 	int index = getIndexA(a_id);
@@ -822,6 +831,15 @@ void Grafo::desmarcaAresta(uint a_id)
 	int index = getIndexA(a_id);
 	if (arestas[index].marcado == true)
 		arestas[index].marcado = false;
+}
+
+/*--------------------------------------*/
+void Grafo::desmarcaTodasArestas()
+{
+	for (uint i = 0; i < num_arestas; i++)
+	{
+		desmarcaAresta(arestas[i].id);
+	}
 }
 
 /*--------------------------------------*/
@@ -1181,6 +1199,8 @@ void Grafo::Dijkstra(vector<uint> &dist, vector<int> &previous, int v_first)
 /*======================================*/
 
 
+// CORRIGIR ESSA BOSTA AÍ
+
 /*================BEGIN ================*/
 /*============ BELLMAN-FORD ============*/
 /*======================================*/
@@ -1190,6 +1210,18 @@ void Grafo::runBellmanFord()
 	{
 		puts("Não há vértices.");
 		return;
+	}
+
+	if (!(tipo & DIRECIONADO))
+	{
+		for (uint i = 0; i < num_arestas; i++)
+		{
+			if (arestas[i].getPeso() < 0)
+			{
+				puts("Bellman-Ford não funciona em grafos não direcionados com arestas de peso negativo.");
+				return;
+			}
+		}
 	}
 
 	listaVertices(false, false, false);
@@ -1236,6 +1268,8 @@ int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
 			{
 				if (dist[j] == INFINITO) continue;
 				a_id_davez = vertices[j].arestas[k];
+				if (getMarcadoAresta(a_id_davez) == true) continue;
+				marcaAresta(a_id_davez);
 				v_index_prox = getIndexV(percorreAresta(a_id_davez, vertices[j].id, false));
 				if (v_index_prox == -1) continue; // Caso seja direcionado.
 				a_davez_dist = arestas[getIndexA(a_id_davez)].getPeso();
@@ -1245,6 +1279,7 @@ int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
 					previous[v_index_prox] = j;
 				}
 			}
+			desmarcaTodasArestas();
 		}
 		if (i == num_vertices - 2)
 			for (uint j = 0; j < num_vertices; j++)
@@ -1261,6 +1296,9 @@ int Grafo::BellmanFord(vector<int> &dist, vector<int> &previous, int v_first)
 /*============ BELLMAN-FORD ============*/
 /*======================================*/
 
+
+// CORRIGIR ESSA BOSTA AÍ
+
 /*================BEGIN ================*/
 /*=========== FLOYD-WARSHALL ===========*/
 /*======================================*/
@@ -1270,6 +1308,18 @@ void Grafo::runFloydWarshall()
 	{
 		puts("Não há vértices.");
 		return;
+	}
+
+	if (!(tipo & DIRECIONADO))
+	{
+		for (uint i = 0; i < num_arestas; i++)
+		{
+			if (arestas[i].getPeso() < 0)
+			{
+				puts("Floyd-Warshall não funciona em grafos não direcionados com arestas de peso negativo.");
+				return;
+			}
+		}
 	}
 
 	vector<vector<int> > dist(num_vertices, vector<int>(num_vertices, INFINITO));
@@ -1288,7 +1338,25 @@ void Grafo::runFloydWarshall()
 		dist[i][i] = 0;
 		maxNameSize = MAX(maxNameSize, vertices[i].nome.size());
 	}
+	puts("\nDistâncias Mínimas: (Floyd-Warshall)");
+	
+	cout << setw(5) << "";
+	for (uint i = 0; i < num_vertices; i++)
+		cout << setw(5) << vertices[i].nome;
 
+	cout << endl;
+
+	for (uint i = 0; i < num_vertices; i++)
+	{
+		cout << setw(5) << vertices[i].nome;
+		for (uint j = 0; j < num_vertices; j++)
+			if (dist[i][j] == INFINITO)
+				cout << setw(5) << " ";
+			else
+				cout << setw(5) << dist[i][j];
+
+		cout << endl;
+	}
 	FloydWarshall(dist);
 	
 	for (uint i = 0; i < num_vertices; i++)
@@ -1304,7 +1372,7 @@ void Grafo::runFloydWarshall()
 				maxNumSize = MAX(maxNumSize, (uint) round(log10(abs(dist[i][j]))) + 1);
 		}
 	}
-
+/*
 	puts("\nDistâncias Mínimas: (Floyd-Warshall)");
 
 	cout << setw(maxNameSize) << "";
@@ -1324,21 +1392,49 @@ void Grafo::runFloydWarshall()
 
 		cout << endl;
 	}
+	*/
 }
 
 /*--------------------------------------*/
 void Grafo::FloydWarshall(vector<vector<int> > &dist)
-{	
+{
 	for (uint k = 0; k < num_vertices; k++)
 	{
 		for (uint i = 0; i < num_vertices; i++)
 		{
 			for (uint j = 0; j < num_vertices; j++)
 			{
+				if (j == i) continue;
 				if (dist[i][k] == INFINITO || dist[k][j] == INFINITO) continue;
-				dist[i][j] = MIN(dist[i][j], dist[i][k] + dist[k][j]);
+				if (dist[i][j] > dist[i][k] + dist[k][j])
+				{
+					printf("dist[%d][%d] = dist[%d][%d] + dist[%d][%d]\n", i, j, i, k, k, j);
+					printf("%10d = %10d + %10d", dist[i][j], dist[i][k], dist[k][j]);
+					dist[i][j] = dist[i][k] + dist[k][j];
+					printf(" = %6d\n", dist[i][j]);
+				}
 			}
 		}
+		printf("\nDistâncias Mínimas: (Floyd-Warshall) K = %d\n", k);
+		
+		cout << setw(5) << "";
+		for (uint i = 0; i < num_vertices; i++)
+			cout << setw(5) << vertices[i].nome;
+	
+		cout << endl;
+	
+		for (uint i = 0; i < num_vertices; i++)
+		{
+			cout << setw(5) << vertices[i].nome;
+			for (uint j = 0; j < num_vertices; j++)
+				if (dist[i][j] == INFINITO)
+					cout << setw(5) << " ";
+				else
+					cout << setw(5) << dist[i][j];
+	
+			cout << endl;
+		}
+		cout << endl;
 	}
 }
 /*=================END =================*/
