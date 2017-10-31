@@ -1469,3 +1469,24 @@ void Grafo::runPrim()
 /*=================END =================*/
 /*================ PRIM ================*/
 /*======================================*/
+
+/*================BEGIN ================*/
+/*=========== Ford-Fulkerson ===========*/
+/*======================================*/
+void Grafo::runFordFulkerson()
+{
+	if (num_vertices < 1)
+	{
+		puts("Não há vértices.");
+		return;
+	}
+
+	if (!(tipo & DIRECIONADO))
+	{
+		puts("Ford-Fulkerson não funciona em grafos não-direcionados.");
+		return;
+	}
+}
+/*=================END =================*/
+/*=========== Ford-Fulkerson ===========*/
+/*======================================*/
